@@ -1,3 +1,7 @@
 data/*
 models/*
 week01/.ipynb_checkpoints/*
+week02/.ipynb_checkpoints/*
+week02/models/*
+week02/mlflow/*
+week02/mlruns/*
