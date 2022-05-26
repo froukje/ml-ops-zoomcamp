@@ -5,3 +5,6 @@ week02/.ipynb_checkpoints/*
 week02/models/*
 week02/mlflow/*
 week02/mlruns/*
+week02/mlruns.db
+week02/output/*
+week02/artifacts/*
