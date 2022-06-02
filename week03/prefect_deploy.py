@@ -1,17 +1,26 @@
-from asyncio import tasks
 import pandas as pd
 import pickle
+
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
+from sklearn.metrics import mean_squared_error
+
 import xgboost as xgb
+
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 from hyperopt.pyll import scope
-from sklearn.metrics import mean_squared_error
+
 import mlflow
+
 from prefect import flow, task
 from prefect.task_runners import SequentialTaskRunner
 
+@task
 def read_dataframe(filename):
     df = pd.read_parquet(filename)
+
+    df.lpep_dropoff_datetime = pd.to_datetime(df.lpep_dropoff_datetime)
+    df.lpep_pickup_datetime = pd.to_datetime(df.lpep_pickup_datetime)
 
     df['duration'] = df.lpep_dropoff_datetime - df.lpep_pickup_datetime
     df.duration = df.duration.apply(lambda td: td.total_seconds() / 60)
@@ -24,12 +33,12 @@ def read_dataframe(filename):
     return df
 
 @task
-def add_features(train_path, val_path):
-    df_train = read_dataframe(train_path)
-    df_val = read_dataframe(val_path)
+def add_features(df_train, df_val):
+    # df_train = read_dataframe(train_path)
+    # df_val = read_dataframe(val_path)
 
-    print(f'train data length: {len(df_train)}')
-    print(f'val data: {len(df_val)}')
+    print(len(df_train))
+    print(len(df_val))
 
     df_train['PU_DO'] = df_train['PULocationID'] + '_' + df_train['DOLocationID']
     df_val['PU_DO'] = df_val['PULocationID'] + '_' + df_val['DOLocationID']
@@ -56,101 +65,95 @@ def train_model_search(train, valid, y_val):
     def objective(params):
         with mlflow.start_run():
             mlflow.set_tag("model", "xgboost")
-            # log paramters in mlflow
             mlflow.log_params(params)
             booster = xgb.train(
-                # paramters are passed to xgboost
                 params=params,
-                # training on train data
                 dtrain=train,
-                # set boosting rounds
                 num_boost_round=100,
-                # validation is done on validation dataset
                 evals=[(valid, 'validation')],
-                # if model does not improve for 50 methods->stop
                 early_stopping_rounds=50
             )
-            # make predictions
             y_pred = booster.predict(valid)
-            # calculate error
             rmse = mean_squared_error(y_val, y_pred, squared=False)
-            # log metric
             mlflow.log_metric("rmse", rmse)
 
         return {'loss': rmse, 'status': STATUS_OK}
 
-    # define the search space, i.e. the range of parameters for hyperparamter tuning
     search_space = {
         'max_depth': scope.int(hp.quniform('max_depth', 4, 100, 1)),
-        'learning_rate': hp.loguniform('learning_rate', -3, 0), #[exp(-3), exp(0)] = [0.05, 1]
+        'learning_rate': hp.loguniform('learning_rate', -3, 0),
         'reg_alpha': hp.loguniform('reg_alpha', -5, -1),
         'reg_lambda': hp.loguniform('reg_lambda', -6, -1),
         'min_child_weight': hp.loguniform('min_child_weight', -1, 3),
         'objective': 'reg:linear',
-        'seed': 42  
+        'seed': 42
     }
 
-    # fmin method tries to minimize the metric
     best_result = fmin(
         fn=objective,
         space=search_space,
         algo=tpe.suggest,
         max_evals=1,
-        trials=Trials() 
+        trials=Trials()
     )
+    return
 
+@task
 def train_best_model(train, valid, y_val, dv):
     with mlflow.start_run():
-        best_params =  {'learning_rate': 0.20905792515510074,
-                        'max_depth': 7,
-                        'min_child_weight': 0.5241500975917085,
-                        'objective': 'reg:squarederror',
-                        'reg_alpha': 0.13309121698466933,
-                        'reg_lambda': 0.11277257081373988,
-                        'seed': 42}
+
+        best_params = {
+            'learning_rate': 0.09585355369315604,
+            'max_depth': 30,
+            'min_child_weight': 1.060597050922164,
+            'objective': 'reg:linear',
+            'reg_alpha': 0.018060244040060163,
+            'reg_lambda': 0.011658731377413597,
+            'seed': 42
+        }
+
         mlflow.log_params(best_params)
 
         booster = xgb.train(
-                    # paramters are passed to xgboost
-                    params=best_params,
-                    # training on train data
-                    dtrain=train,
-                    # set boosting rounds
-                    num_boost_round=100,
-                    # validation is done on validation dataset
-                       evals=[(valid, 'validation')],
-                    # if model does not improve for 50 methods->stop
-                    early_stopping_rounds=50
-                )
+            params=best_params,
+            dtrain=train,
+            num_boost_round=100,
+            evals=[(valid, 'validation')],
+            early_stopping_rounds=50
+        )
 
-
-        # make predictions
         y_pred = booster.predict(valid)
-        # calculate error
         rmse = mean_squared_error(y_val, y_pred, squared=False)
-        # log metric
         mlflow.log_metric("rmse", rmse)
 
-        # save preprocessor
-        with open("../week02/models/preprocessor.b", "wb") as f_out:
+        with open("models/preprocessor.b", "wb") as f_out:
             pickle.dump(dv, f_out)
-        # log preprocessor
-        mlflow.log_artifacts("../week02/models", artifact_path="preprocessor")
-        # log the model
+        mlflow.log_artifact("models/preprocessor.b", artifact_path="preprocessor")
+
         mlflow.xgboost.log_model(booster, artifact_path="models_mlflow")
 
 @flow(task_runner=SequentialTaskRunner())
-def main(train_path='../data/green_/home/frauketripdata_2021-01.parquet', 
-         val_path='../data/green_tripdata_2021-02.parquet'):
-
-    mlflow.set_tracking_uri("sqlite:///mlruns.db")
-    mlflow.set_experiment("nyc-taxi-experiment-2")
-    X_train, X_val, y_train, y_val, dv = add_features(train_path, val_path).result()
+def main(train_path: str="./data/green_tripdata_2021-01.parquet",
+        val_path: str="./data/green_tripdata_2021-02.parquet"):
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_experiment("nyc-taxi-experiment")
+    X_train = read_dataframe(train_path)
+    X_val = read_dataframe(val_path)
+    X_train, X_val, y_train, y_val, dv = add_features(X_train, X_val).result()
     train = xgb.DMatrix(X_train, label=y_train)
     valid = xgb.DMatrix(X_val, label=y_val)
     train_model_search(train, valid, y_val)
     train_best_model(train, valid, y_val, dv)
 
-if __name__ == "__main__":
-    main()
+from prefect.deployments import DeploymentSpec
+from prefect.orion.schemas.schedules import IntervalSchedule
+from prefect.flow_runners import SubprocessFlowRunner
+from datetime import timedelta
 
+DeploymentSpec(
+    flow=main,
+    name="model_training",
+    schedule=IntervalSchedule(interval=timedelta(minutes=5)),
+    flow_runner=SubprocessFlowRunner(),
+    tags=["ml"]
+)

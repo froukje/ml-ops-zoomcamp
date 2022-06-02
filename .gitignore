@@ -8,7 +8,6 @@ week02/mlruns/*
 week02/mlruns.db
 week02/output/*
 week02/artifacts/*
-<<<<<<< HEAD
 week02/preprocessor/*
 week02/running-mlflow-examples/artifacts/*
 week02/running-mlflow-examples/mlruns/*
@@ -16,5 +15,5 @@ week02/running-mlflow-examples/backend.db
 week02/running-mlflow-examples/.ipynb_checkpoints/*
 week03/.ipynb_checkpoints/
 week03/mlruns.db
-=======
->>>>>>> eaa851c231beb3befefa8cbcee9dca5bf50ee188
+week03/mlruns/
+
