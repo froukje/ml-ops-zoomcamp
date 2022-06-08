@@ -100,10 +100,10 @@ def main(date_="2021-08-15"):
     run_model(df_val_processed, categorical, dv, lr)
     
     # save preprocessor
-    with open(f"../../week02/models/dv-{date_}.pkl", "wb") as f_out:
+    with open(f"../../week02_Experiment_tracking_and_model_management/models/dv-{date_}.pkl", "wb") as f_out:
         pickle.dump(dv, f_out)
     # save model
-    with open(f"../../week02/models/model-{date_}.bin", "wb") as f_out:
+    with open(f"../../week02_Experiment_tracking_and_model_management/models/model-{date_}.bin", "wb") as f_out:
         pickle.dump(lr, f_out)
 
 
