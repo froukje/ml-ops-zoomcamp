@@ -18,3 +18,5 @@ week03_Orchestration_and_ML_Pipelines/mlruns.db
 week03_Orchestration_and_ML_Pipelines/mlruns/*
 week03_Orchestration_and_ML_Pipelines/mlflow.db
 week03_Orchestration_and_ML_Pipelines/homework/.ipynb_checkpoints/*
+week04_Model_Deployment/.ipynb_checkpoints/*
+
