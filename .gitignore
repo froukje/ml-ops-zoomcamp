@@ -31,3 +31,11 @@ week04_Model_Deployment/batch/mlruns.db
 week04_Model_Deployment/web-service-mlflow/.ipynb_checkpoints/*
 week04_Model_Deployment/homework/.ipynb_checkpoints/*
 week04_Model_Deployment/homework/model.bin
+week04_Model_Deployment/batch/tmp/
+/home/frauke/ml-ops-zoomcamp/week04_Model_Deployment/batch/tmp/*
+/home/frauke/ml-ops-zoomcamp/week05_Monitoring/prediction_service/lin_reg.bin
+/home/frauke/ml-ops-zoomcamp/week05_Monitoring/evidently_service/datasets/*
+week05_Monitoring/venv/*
+week05_Monitoring/green_tripdata_2022-01.parquet
+week05_Monitoring/prediction_service/lin_reg.bin
+week05_Monitoring/evidently_service/datasets/*
