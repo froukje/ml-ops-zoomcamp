@@ -35,7 +35,10 @@ models/*
 /home/frauke/ml-ops-zoomcamp/week04_Model_Deployment/batch/tmp/*
 /home/frauke/ml-ops-zoomcamp/week05_Monitoring/prediction_service/lin_reg.bin
 /home/frauke/ml-ops-zoomcamp/week05_Monitoring/evidently_service/datasets/*
-week05_Monitoring/venv/*
-week05_Monitoring/green_tripdata_2022-01.parquet
-week05_Monitoring/prediction_service/lin_reg.bin
-week05_Monitoring/evidently_service/datasets/*
+05_monitoring/venv/*
+05_monitoring/green_tripdata_2022-01.parquet
+05_monitoring/prediction_service/lin_reg.bin
+05_monitoring/evidently_service/datasets/*
+05-monitoring/venv/*
+05-monitoring/target.csv
+05-monitoring/.ipynb_checkpoints/*
