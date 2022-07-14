@@ -4,16 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-boto3 = "*"
-mlflow = "*"
-scikit-learn = "==1.0.2"
 
 [dev-packages]
-pytest = "*"
-deepdiff = "*"
-black = "*"
-isort = "*"
-pre-commit = "*"
+pylint = "==2.14.4"
 
 [requires]
 python_version = "3.9"

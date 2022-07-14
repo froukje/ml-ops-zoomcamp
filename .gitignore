@@ -42,3 +42,4 @@ models/*
 05-monitoring/venv/*
 05-monitoring/target.csv
 05-monitoring/.ipynb_checkpoints/*
+06-best-practices/code/integraton-test/model/*
