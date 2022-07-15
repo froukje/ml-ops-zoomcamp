@@ -4,9 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pandas = "*"
+sklearn = "*"
+pyarrow = "*"
+s3fs = "*"
+localstack = "*"
 
 [dev-packages]
 pylint = "==2.14.4"
+pytest = "*"
 
 [requires]
 python_version = "3.9"

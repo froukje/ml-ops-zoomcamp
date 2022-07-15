@@ -43,3 +43,5 @@ models/*
 05-monitoring/target.csv
 05-monitoring/.ipynb_checkpoints/*
 06-best-practices/code/integraton-test/model/*
+06-best-practices/.vscode/*
+06-best-practices/homework/.ipynb_checkpoints/*
