@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  localstack:
+    image: homework6:v1
+    ports:
+      - "8080:8080"
+    environment:
+      - AWS_DEFAULT_REGION=eu-west-1
+      - MODEL_LOCATION=/batch
+    volumes:
+      - "./batch:/batch"

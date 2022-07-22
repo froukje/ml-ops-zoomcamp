@@ -7,6 +7,9 @@ name = "pypi"
 boto3 = "*"
 mlflow = "*"
 scikit-learn = "==1.0.2"
+pyarrow = "*"
+fsspec = "*"
+s3fs = "*"
 
 [dev-packages]
 pytest = "*"
