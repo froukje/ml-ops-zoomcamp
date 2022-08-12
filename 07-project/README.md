@@ -45,5 +45,23 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 
 ## Repository Structure
 
-* data-exploration.ipynb: Notebook containing data exploration
-* training.py: Data preparation and Model training including experiment tracking and model registry using mlflow 
+**data-exploration.ipynb:** Notebook containing data exploration
+
+**training.py:** Data preparation and Model training including experiment tracking and model registry using mlflow
+* Model used: XGBoost for Regression
+* Environment
+	* The needed packages are saved in project-env.yml and can be converted into a conda environment using ```conda env create --name project-env --file=project-env.yml```
+	* Activate the environment with ```conda activate project-env```
+* Training
+	* Run the training script with: ```python3 training.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
+* Hyperparameter tuning
+	* Hyperparameter tuning done via Optuna
+	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ``python3 training.py --n-trials 50```
+	* Model parameters for hyperparameter tuning can also be change via the command line, e.g. ```e-estimators```, ```max-depth```, ```gamma```, ```eta```, etc.
+* Mlflow experiment tracking and model registry
+	* mlflow tracking server: yes, local server
+	* mlflow backend store: sqlite database
+	* mlflow artifacts store: local filesystem
+	* Best model is registered using mlflow 
+	* Experiment tracking and model registry UI can be accessed via ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts``` and then ```localhost:5000``` in the browser
+

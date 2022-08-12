@@ -46,3 +46,6 @@ models/*
 06-best-practices/.vscode/*
 06-best-practices/homework/.ipynb_checkpoints/*
 06-best-practices/.ipynb_checkpoints/*
+07-project/mlruns.db
+07-project/mlruns/
+07-project/output/
