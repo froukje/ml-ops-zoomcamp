@@ -19,10 +19,7 @@ from optuna.samplers import TPESampler
 import mlflow
 from mlflow.tracking import MlflowClient
 
-from prefect import flow, task
-from prefect.task_runners import SequentialTaskRunner
 
-@task
 def read_data(args):
     ''' read input data and rename column names'''
     data = pd.read_csv(args.input_data)
@@ -38,7 +35,6 @@ def read_data(args):
                                 "Y2": "cooling_load"})
     return data
 
-@task
 def onehot(args, data_train, data_val, categorical):
     '''one hot encoding of categorical features'''
 
@@ -55,7 +51,6 @@ def onehot(args, data_train, data_val, categorical):
 
     return X_train_cat, X_val_cat, dv
 
-@task
 def normalize(args, data_train, data_val, numerical):
     ''' normalize numerical features'''
     scaler = StandardScaler()
@@ -64,7 +59,6 @@ def normalize(args, data_train, data_val, numerical):
    
     return X_train_num, X_val_num, scaler
 
-@task
 def training(X_train, X_val, y_train, y_val, dv, scaler):
     '''training the model with hyperparameter tuning'''
     def objective(trial):
@@ -123,16 +117,15 @@ def training(X_train, X_val, y_train, y_val, dv, scaler):
     study.optimize(objective, n_trials=args.n_trials)
     
     return study
-
-@flow(task_runner=SequentialTaskRunner())
+   
 def main(args):
 
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
     #mlflow.set_tracking_uri("sqlite:///mlruns.db")
     client = MlflowClient("http://127.0.0.1:5000")
-
+   
     # read data
-    data = read_data(args).result()
+    data = read_data(args)
 
     # define features and target
     features = ["relative_compactnes", "surface_area", "wall_area", 
@@ -160,9 +153,9 @@ def main(args):
    
     # preprocessing
     ## normalize numerical variables
-    X_train_num, X_val_num, scaler = normalize(args, data_train, data_val, numerical).result()
+    X_train_num, X_val_num, scaler = normalize(args, data_train, data_val, numerical)
     ## one-hot encode categorical variables 
-    X_train_cat, X_val_cat, dv = onehot(args, data_train, data_val, categorical).result()
+    X_train_cat, X_val_cat, dv = onehot(args, data_train, data_val, categorical)
 
     # concatenate numerical and categorical features
     X_train = np.concatenate((X_train_num, X_train_cat), axis=1)
@@ -175,7 +168,7 @@ def main(args):
     y_val = data_val[target]
     
     # train the model with hyperparameter tuning
-    study = training(X_train, X_val, y_train, y_val, dv, scaler).result()
+    study = training(X_train, X_val, y_train, y_val, dv, scaler)
     print("Number of finished trials: ", len(study.trials))
 
     # save best parameters
@@ -194,6 +187,8 @@ def main(args):
     )
     print("Registered Models:")
     print(client.list_registered_models())
+    
+    mlflow.end_run()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -52,7 +52,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 * Environment
 	* The needed packages are saved in project-env.yml and can be converted into a conda environment using ```conda env create --name project-env --file=project-env.yml```
 	* Activate the environment with ```conda activate project-env```
-* Training
+* Start the Server
+	* Experiment tracking and model registry UI can be accessed via ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts```
+* Trainine
 	* Run the training script with: ```python3 training.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
 * Hyperparameter tuning
 	* Hyperparameter tuning done via Optuna
@@ -63,5 +65,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* mlflow backend store: sqlite database
 	* mlflow artifacts store: local filesystem
 	* Best model is registered using mlflow 
-	* Experiment tracking and model registry UI can be accessed via ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts``` and then ```localhost:5000``` in the browser
+	* Experiment tracking and model registry UI can be accessed via ```localhost:5000``` in the browser
+* Orchestration using prefect
+	* The ```main``` function is turned into a prefect ```flow```
+	* The functions ```read_data```, ```normalize```, ```onehot```, and ```training``` are turned into tasks
+	* To the the prefect UI use ```prefect orion``` and browse to ```localhost:4200```
 
