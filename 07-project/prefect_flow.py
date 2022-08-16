@@ -65,7 +65,7 @@ def normalize(args, data_train, data_val, numerical):
     return X_train_num, X_val_num, scaler
 
 @task
-def training(X_train, X_val, y_train, y_val, dv, scaler):
+def training(X_train, X_val, y_train, y_val, dv, scaler, args):
     '''training the model with hyperparameter tuning'''
     def objective(trial):
         mlflow.set_experiment("xgb-hyper")
@@ -175,7 +175,7 @@ def main(args):
     y_val = data_val[target]
     
     # train the model with hyperparameter tuning
-    study = training(X_train, X_val, y_train, y_val, dv, scaler).result()
+    study = training(X_train, X_val, y_train, y_val, dv, scaler, args).result()
     print("Number of finished trials: ", len(study.trials))
 
     # save best parameters

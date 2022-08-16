@@ -47,27 +47,40 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 
 **data-exploration.ipynb:** Notebook containing data exploration
 
-**training.py:** Data preparation and Model training including experiment tracking and model registry using mlflow
+**Note:** The individual steps of the project are stored in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This is only done for the project to see how my working steps were and not necessary. In the end everything is stored together in the file ```training.py```.
+
+**training.py:** Data preparation and Model training 
 * Model used: XGBoost for Regression
 * Environment
 	* The needed packages are saved in project-env.yml and can be converted into a conda environment using ```conda env create --name project-env --file=project-env.yml```
 	* Activate the environment with ```conda activate project-env```
 * Start the Server
-	* Experiment tracking and model registry UI can be accessed via ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts```
-* Trainine
-	* Run the training script with: ```python3 training.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
+	* Start server for tracking and model registry ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts```
+* Training
+	* To run only training with experiment tracking and model registry use ```exp-tracking.py``` and run it with: ```python3 exp-tracking.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
 * Hyperparameter tuning
-	* Hyperparameter tuning done via Optuna
-	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ``python3 training.py --n-trials 50```
-	* Model parameters for hyperparameter tuning can also be change via the command line, e.g. ```e-estimators```, ```max-depth```, ```gamma```, ```eta```, etc.
+	* Hyperparameter tuning is done via Optuna
+	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ```python3 exp-tracking.py --n-trials 50```, to change it for the final ```training.py``` file, you need to change it directly in the script.
+	* Model parameters for hyperparameter tuning can also be change via the command line, e.g. ```n-estimators```, ```max-depth```, ```gamma```, ```eta```, etc. for ```exp-tracking.py```. For the final script, they need to be changed in the script.
 * Mlflow experiment tracking and model registry
-	* mlflow tracking server: yes, local server
+	* mlflow tracking server: local server
 	* mlflow backend store: sqlite database
 	* mlflow artifacts store: local filesystem
-	* Best model is registered using mlflow 
+	* Best model (lowest validation metric: RMSE) is registered using mlflow 
 	* Experiment tracking and model registry UI can be accessed via ```localhost:5000``` in the browser
 * Orchestration using prefect
 	* The ```main``` function is turned into a prefect ```flow```
 	* The functions ```read_data```, ```normalize```, ```onehot```, and ```training``` are turned into tasks
-	* To the the prefect UI use ```prefect orion``` and browse to ```localhost:4200```
+	* To the the prefect UI use ```prefect orion start``` and browse to ```localhost:4200```
+	* To start a prefect flow (without deployment) use the script ```prefect-flow.py``` and run it as before the ```exp-tracking.py``` file
+	* A deployment is used to run the script every 5 minutes. 
+	* To run the prefect deployment use ```prefect deployment create prefect-deploy.py```
+	* Note: to create the deployment, I had to change the code slightly, as the argparse is not working (and also not useful), when the flow is scheduled. 
+	* Create a work queue in the UI, as shown in video 3.5 of the course
+	* Spin up an agend ```prefect agent start <workqueue-id>```, e.g. ```prefect agent start a4bdb288-7329-4a1c-992f-fe62cd898af9```
 
+
+TODO:
+* check if outout
+* mlflow server
+* conda env
