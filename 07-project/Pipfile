@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+xgboost = "==1.6.1"
+mlflow = "*"
+gunicorn = "*"
+requests = "*"
+scikit-learn = "==1.0.2"
+pandas = "==1.4.2"
+psutil = "==5.9.1"
+typing-extensions = "==4.1.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

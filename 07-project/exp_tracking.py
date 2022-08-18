@@ -104,7 +104,7 @@ def training(X_train, X_val, y_train, y_val, dv, scaler):
             mlflow.log_artifact(local_path=scaler_path)
 
             # save model
-            mlflow.xgboost.log_model(model, artifact_path="models_mlflow")
+            mlflow.xgboost.log_model(model, artifact_path="models")
             
             # save run id
             run = mlflow.active_run()
@@ -120,9 +120,8 @@ def training(X_train, X_val, y_train, y_val, dv, scaler):
    
 def main(args):
 
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")
-    #mlflow.set_tracking_uri("sqlite:///mlruns.db")
-    client = MlflowClient("http://127.0.0.1:5000")
+    mlflow.set_tracking_uri("sqlite:///mlruns.db")
+    client = MlflowClient("http://127.0.0.1:5005")
    
     # read data
     data = read_data(args)

@@ -111,7 +111,7 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
             mlflow.log_artifact(local_path=scaler_path)
 
             # save model
-            mlflow.xgboost.log_model(model, artifact_path="models_mlflow")
+            mlflow.xgboost.log_model(model, artifact_path="models")
             
             # save run id
             run = mlflow.active_run()
@@ -139,7 +139,7 @@ def main(input_data='data/ENB2012_data.csv',
     args_dict["gamma"] = [0, 1]
     args_dict["alpha"] = [0, 1]
     args_dict["min_child_weight"] = [1, 10, 50]
-    args_dict["n_trials"] = 2
+    args_dict["n_trials"] = 200
 
     args = namedtuple("ObjectName", args_dict.keys())(*args_dict.values())
     

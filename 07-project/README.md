@@ -43,15 +43,27 @@ A. Tsanas, A. Xifara: 'Accurate quantitative estimation of energy performance of
 
 A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity using nonlinear speech signal processing and statistical machine learning', D.Phil. thesis, University of Oxford, 2012
 
+## Quickstart
+
+To run the web-app the follwing steps are necessary:
+* Train and save model
+	* create environment
+	* activate environment
+	* prefect deployment create prefect-deploy.py (or without deployment ...)
+	* the best model is saved in model reistry
+* Run web app
+	* create docker image
+	* run docker-compose up
+
 ## Repository Structure
 
-**data-exploration.ipynb:** Notebook containing data exploration
+**```data-exploration.ipynb```:** Notebook containing data exploration
 
-**Note:** The individual steps of the project are stored in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This is only done for the project to see how my working steps were and not necessary. In the end everything is stored together in the file ```training.py```.
+**Note:** The individual steps of the project are stored in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This is only done for the project to see how my working steps were and not necessary.
 
-**training.py:** Data preparation and Model training 
+**```training.py```:** Data preparation and Model training 
 * Model used: XGBoost for Regression
-* Environment
+* Environment:
 	* The needed packages are saved in project-env.yml and can be converted into a conda environment using ```conda env create --name project-env --file=project-env.yml```
 	* Activate the environment with ```conda activate project-env```
 * Start the Server
@@ -62,13 +74,13 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* Hyperparameter tuning is done via Optuna
 	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ```python3 exp-tracking.py --n-trials 50```, to change it for the final ```training.py``` file, you need to change it directly in the script.
 	* Model parameters for hyperparameter tuning can also be change via the command line, e.g. ```n-estimators```, ```max-depth```, ```gamma```, ```eta```, etc. for ```exp-tracking.py```. For the final script, they need to be changed in the script.
-* Mlflow experiment tracking and model registry
-	* mlflow tracking server: local server
+* Mlflow experiment tracking and model registry (Following videos from week 2)
+	* mlflow tracking server: sqlite database
 	* mlflow backend store: sqlite database
 	* mlflow artifacts store: local filesystem
-	* Best model (lowest validation metric: RMSE) is registered using mlflow 
+	* Best model (lowest validation metric: RMSE) is automatially registered using mlflow. Note: Even better would be to compare with the previous registered model and only register the new one if it is better than the previous one. 
 	* Experiment tracking and model registry UI can be accessed via ```localhost:5000``` in the browser
-* Orchestration using prefect
+* Orchestration using prefect (Following videos from week 3)
 	* The ```main``` function is turned into a prefect ```flow```
 	* The functions ```read_data```, ```normalize```, ```onehot```, and ```training``` are turned into tasks
 	* To the the prefect UI use ```prefect orion start``` and browse to ```localhost:4200```
@@ -79,8 +91,22 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* Create a work queue in the UI, as shown in video 3.5 of the course
 	* Spin up an agend ```prefect agent start <workqueue-id>```, e.g. ```prefect agent start a4bdb288-7329-4a1c-992f-fe62cd898af9```
 
+**```predict.py```:** Deploy model as a web service
+* The model is deployed as a web service (Following videos from week 4)
+	* The model and other needed artifacts are loaded from mlflow model registry. Note: This would be easier following the advice from the videos of creating a pipeline and saving everything together, however, I decided to leave the code as it is to have more functions and with that more flows for the purpose of getting to know the workflow of orchestration better.
+	* The model version needs to be set manually in the ```predict.py``` script!
+	* A virtual envirenment using ```Pipenv``` is created containing ```flask```, ```xgboost==1.6.1```, ```scikit-learn```, ```gunicorn```, ```requests```, ```mlflow``` are created
+	* Activate the envirenment by ```pipenv shell```
+	* The ```predict.py``` file can be tested locally using ```test-predict.py```. This gives the prediction of one specific input example
+	* The way this is implemented the predict.py file depends on that the tracking server is running. As mentioned in the videos, ideally this dependency should be removed. However, I wanted to try to automatically get the registered model, without putting manually the run_id.
+	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test-predict-flask.py``` in another terminal. This should give the same result as ```test-predit.py```
+**```predict-docker.py```:** Deploy model as a web service using docker	
+* The app can be started in Docker
+	* Build the docker image: ```docker build -t heat-loading-service:v1 .```
+	* Run the container: ```docker-compose up```
+* Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
 
 TODO:
+* check port 5000
 * check if outout
-* mlflow server
 * conda env

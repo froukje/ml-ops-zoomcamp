@@ -7,7 +7,6 @@ import numpy as np
 import argparse
 import pickle
 from datetime import datetime
-from collections import namedtuple
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction import DictVectorizer
@@ -111,7 +110,7 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
             mlflow.log_artifact(local_path=scaler_path)
 
             # save model
-            mlflow.xgboost.log_model(model, artifact_path="models_mlflow")
+            mlflow.xgboost.log_model(model, artifact_path="models")
             
             # save run id
             run = mlflow.active_run()
@@ -126,23 +125,7 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
     return study
 
 @flow(task_runner=SequentialTaskRunner())
-def main(input_data='data/ENB2012_data.csv',
-         output='output'):
-
-    args_dict = {}
-    args_dict["input_data"] = input_data
-    args_dict["output"] = output
-    args_dict["n_estimators"] = [500, 1000]
-    args_dict["max_depth"] = [5, 10, 100, None]
-    args_dict["min_samples_leaf"] = [1, 10, 50]
-    args_dict["eta"] = [0.1, 0.5]
-    args_dict["gamma"] = [0, 1]
-    args_dict["alpha"] = [0, 1]
-    args_dict["min_child_weight"] = [1, 10, 50]
-    args_dict["n_trials"] = 2
-
-    args = namedtuple("ObjectName", args_dict.keys())(*args_dict.values())
-    
+def main(args):
 
     #mlflow.set_tracking_uri("http://127.0.0.1:5000")
     mlflow.set_tracking_uri("sqlite:///mlruns.db")
@@ -212,18 +195,30 @@ def main(input_data='data/ENB2012_data.csv',
     print("Registered Models:")
     print(client.list_registered_models())
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    # data locations
+    parser.add_argument('--input-data', type=str, default='data/ENB2012_data.csv')
+    parser.add_argument('--output', type=str, default='output')
+    # model parameters
+    parser.add_argument('--n-estimators', type=int, nargs='+', default=[500, 1000])
+    parser.add_argument('--max-depth', type=int, nargs='+', default=[5, 10, 100, None])
+    parser.add_argument('--max-depth-none', action='store_true', default=False)
+    parser.add_argument('--min-samples-leaf', type=int, nargs='+', default=[1, 10, 50])
+    parser.add_argument('--eta', type=float, nargs='+', default=[0.1, 0.5]) # default 0.3
+    parser.add_argument('--gamma', type=float, nargs='+', default=[0, 1]) # default=0
+    parser.add_argument('--alpha', type=float, nargs='+', default=[0, 1]) # default=0
+    parser.add_argument('--min-child_weight', type=int, nargs='+', default=[1, 10, 50])
+    # nr of trials for hyperparameter tuning
+    parser.add_argument('--n-trials', type=int, default='200')
+    args = parser.parse_args()
 
+    # None is added to max-depth (cannot be done directly -> type error)
+    if args.max_depth_none:
+        args.max_depth = args.max_depth + [None]
 
-    #main(args)
-from prefect.deployments import DeploymentSpec
-from prefect.orion.schemas.schedules import IntervalSchedule
-from prefect.flow_runners import SubprocessFlowRunner
-from datetime import timedelta
+    for key, value in vars(args).items():
+        print(f'{key}: {value}')
+    print()
 
-DeploymentSpec(
-        flow=main,
-        name="model_training",
-        schedule=IntervalSchedule(interval=timedelta(minutes=5)),
-        flow_runner=SubprocessFlowRunner(),
-        tags=["ds-train"]
-        )
+    main(args)

@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+  heat-load:
+    image: heat-loading-service:v1
+    ports:
+      - "9696:9696"
+
