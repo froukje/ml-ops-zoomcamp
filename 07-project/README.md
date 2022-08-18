@@ -61,7 +61,7 @@ To run the web-app the follwing steps are necessary:
 
 **Note:** The individual steps of the project are stored in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This is only done for the project to see how my working steps were and not necessary.
 
-**prefect-deploy-py:** Data preparation, Model training and Deployment:
+**```prefect-deploy-py```:** Data preparation, Model training and Deployment:
 * Model used: XGBoost for Regression
 * Environment:
 	* The needed packages are saved in project-env.yml and can be converted into a conda environment using ```conda env create --name project-env --file=project-env.yml```
