@@ -99,7 +99,8 @@ To run the web-app the follwing steps are necessary:
 	* Activate the envirenment by ```pipenv shell```
 	* The ```predict.py``` file can be tested locally using ```test-predict.py```. This gives the prediction of one specific input example
 	* The way this is implemented the predict.py file depends on that the tracking server is running. As mentioned in the videos, ideally this dependency should be removed. However, I wanted to try to automatically get the registered model, without putting manually the run_id.
-	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test-predict-flask.py``` in another terminal. This should give the same result as ```test-predit.py```
+	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test-predict-flask.py``` in another terminal. This should give the same result as ```test-predict.py```
+
 **```predict-docker.py```:** Deploy model as a web service using docker	
 * The app can be started in Docker
 	* Build the docker image: ```docker build -t heat-loading-service:v1 .```
