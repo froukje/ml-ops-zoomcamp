@@ -52,8 +52,8 @@ To run the web-app the follwing steps are necessary:
 	* prefect deployment create prefect-deploy.py (or without deployment ...)
 	* the best model is saved in model reistry
 * Run web app
-	* create docker image
-	* run docker-compose up
+	* create docker image: ```docker build -t heat-loading-service:v1 .```
+	* run docker container: ```docker run -it -p 9696:9696 heat-loading-service:v1```
 
 ## Repository Structure
 
@@ -104,8 +104,10 @@ To run the web-app the follwing steps are necessary:
 **```predict-docker.py```:** Deploy model as a web service using docker	
 * The app can be started in Docker
 	* Build the docker image: ```docker build -t heat-loading-service:v1 .```
-	* Run the container: ```docker-compose up```
+	* Run the container: ```docker run -it -p 9696:9696 heat-loading-service:v1```
 * Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
+
+**```predict-monitoring.py```:** Monitoring (batch, following videos of week 5)
 
 TODO:
 * check port 5000
