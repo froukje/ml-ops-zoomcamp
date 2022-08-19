@@ -1,17 +1,22 @@
 datasets:
-  taxi:
+  heat_load:
     column_mapping:
       categorical_features:
-        - 'PULocationID'
-        - 'DOLocationID'
+        - 'orientation' 
+        - 'glazing_area_distribution'
       numerical_features:
-        - 'trip_distance'
+        - 'relative_compactnes'
+        - 'surface_area'
+        - 'wall_area'
+        - 'roof_area' 
+        - 'overall_height'
+        - 'glazing_area'
     data_format:
       header: true
       separator: ','
     monitors:
       - data_drift
-    reference_file: ./datasets/green_tripdata_2021-01.parquet
+    reference_file: ./datasets/ENB2012_data.csv
 service:
   calculation_period_sec: 2
   min_reference_size: 30

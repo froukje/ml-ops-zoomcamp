@@ -13,6 +13,7 @@ scikit-learn = "==1.0.2"
 pandas = "==1.4.2"
 psutil = "==5.9.1"
 typing-extensions = "==4.1.1"
+pymongo = "*"
 
 [dev-packages]
 

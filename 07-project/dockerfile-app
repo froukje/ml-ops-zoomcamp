@@ -11,8 +11,8 @@ COPY ["mlruns.db", ".mlruns.db"]
 
 RUN pipenv install --system --deploy
 
-COPY ["predict-monitoring.py", "./"]
+COPY ["predict-docker.py", "./"]
 
 EXPOSE 9696
 
-ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:9696", "predict-monitoring:app"]
+ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:9696", "predict-docker:app"]

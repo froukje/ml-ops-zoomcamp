@@ -49,3 +49,4 @@ models/*
 07-project/mlruns.db
 07-project/mlruns/
 07-project/output/
+07-project/.ipynb_checkpoints/*
