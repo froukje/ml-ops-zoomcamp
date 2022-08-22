@@ -50,3 +50,5 @@ models/*
 07-project/mlruns/
 07-project/output/
 07-project/.ipynb_checkpoints/*
+07-project/target.csv
+

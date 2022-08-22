@@ -23,16 +23,6 @@ from mlflow.tracking import MlflowClient
 def read_data(args):
     ''' read input data and rename column names'''
     data = pd.read_csv(args.input_data)
-    data = data.rename(columns={"X1": "relative_compactnes", 
-                                "X2": "surface_area",
-                                "X3": "wall_area", 
-                                "X4": "roof_area", 
-                                "X5": "overall_height",
-                                "X6": "orientation", 
-                                "X7": "glazing_area", 
-                                "X8": "glazing_area_distribution",
-                                "Y1": "heating_load", 
-                                "Y2": "cooling_load"})
     return data
 
 def onehot(args, data_train, data_val, categorical):
@@ -127,14 +117,11 @@ def main(args):
     data = read_data(args)
 
     # define features and target
-    features = ["relative_compactnes", "surface_area", "wall_area", 
-                "roof_area", "overall_height", "orientation", "glazing_area", 
-                "glazing_area_distribution"] 
-    target = "heating_load"
+    features = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8']
+    target = 'Y1'
     # define numerical and categorical features
-    numerical = ["relative_compactnes", "surface_area", "wall_area", 
-                 "roof_area", "overall_height", "glazing_area"]
-    categorical = ["orientation", "glazing_area_distribution"] 
+    numerical = ['X1', 'X2', 'X3', 'X4', 'X5', 'X7']
+    categorical = ['X6', 'X8']
 
     # train-/ val-/ test split
     data_train_full, data_test = train_test_split(data[features+[target]], test_size=0.2, random_state=42)

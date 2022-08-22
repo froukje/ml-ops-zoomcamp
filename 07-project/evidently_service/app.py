@@ -19,7 +19,7 @@ from typing import Optional
 import flask
 import pandas as pd
 import prometheus_client
-from pyarrow import parquet as pq
+#from pyarrow import parquet as pq
 from flask import Flask
 import yaml
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
@@ -121,7 +121,6 @@ class MonitoringService:
 
         else:
             current_data = new_rows
-
         current_size = current_data.shape[0]
 
         if current_size > self.window_size:
@@ -195,7 +194,7 @@ def configure_service():
     for dataset_name, dataset_options in config["datasets"].items():
         reference_file = dataset_options['reference_file']
         logging.info(f"Load reference data for dataset {dataset_name} from {reference_file}")
-        reference_data = pq.read_table(reference_file).to_pandas()
+        reference_data = pd.read_csv(reference_file)
         datasets[dataset_name] = LoadedDataset(
             name=dataset_name,
             references=reference_data,

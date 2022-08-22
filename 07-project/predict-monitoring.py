@@ -10,12 +10,12 @@ import numpy as np
 from pymongo import MongoClient
 import requests
 
-RUN_ID = '2d5ce3ffec2d45d98fd1796654e7ba42'
+RUN_ID = 'dd45baed06ef478e9646e1010a0b80f8'
 logged_model = f'./mlruns/1/{RUN_ID}/artifacts/models'
 
 #MODEL_FILE = os.getenv('MODEL_FILE', os.path.join(logged_model, 'model.xgb'))
 MONGODB_ADDRESS = os.getenv('MONGODB_ADDRESS', 'mongodb://127.0.0.1.27017')
-EVIDENTLY_SERVICE_ADDRESS = os.getenv('EVIDENTLY_SERVICE_', 'http://127.0.0.1:5000')
+EVIDENTLY_SERVICE_ADDRESS = os.getenv('EVIDENTLY_SERVICE', 'http://127.0.0.1:5000')
 
 model = mlflow.pyfunc.load_model(logged_model)
 
@@ -38,21 +38,20 @@ def predict_endpoint():
     
     # turn json input to dataframe
     record = pd.DataFrame([record])
-    record = record.rename(columns={"X1": "relative_compactnes",
-                                "X2": "surface_area",
-                                "X3": "wall_area",
-                                "X4": "roof_area",
-                                "X5": "overall_height",
-                                "X6": "orientation",
-                                "X7": "glazing_area",
-                                "X8": "glazing_area_distribution",
-                                "Y1": "heating_load",
-                                "Y2": "cooling_load"})
+    #record = record.rename(columns={"X1": "relative_compactnes",
+    #                            "X2": "surface_area",
+    #                            "X3": "wall_area",
+    #                            "X4": "roof_area",
+    #                            "X5": "overall_height",
+    #                            "X6": "orientation",
+    #                            "X7": "glazing_area",
+    #                            "X8": "glazing_area_distribution",
+    #                            "Y1": "heating_load",
+    #                            "Y2": "cooling_load"})
 
     # define numerical and categorical features
-    numerical = ["relative_compactnes", "surface_area", "wall_area",
-                 "roof_area", "overall_height", "glazing_area"]
-    categorical = ["orientation", "glazing_area_distribution"]
+    numerical = ["X1", "X2", "X3", "X4", "X5", "X7"]
+    categorical = ["X6", "X8"]
     
     # preprocess numerical features
     X_num = scaler.transform(record[numerical])
@@ -75,7 +74,7 @@ def predict_endpoint():
     print(record)
     save_to_db(record, float(pred))
 
-    send_to_evidently_service(record, float(pred))
+ #   send_to_evidently_service(record, float(pred))
 
     return jsonify(result)
 
@@ -86,11 +85,11 @@ def save_to_db(record, prediction):
     print('RECORD', rec)
     collection.insert_one(rec)
 
-def send_to_evidently_service(record, prediction):
-    rec = record.copy()
-    rec['prediction'] = prediction
+#def send_to_evidently_service(record, prediction):
+#    rec = record.copy()
+#    rec['prediction'] = prediction
 
-    #requests.post(f'{EVIDENTLY_SERVICE_ADDRESS}/iterate/heat_load', json=[rec])
+#    requests.post(f'{EVIDENTLY_SERVICE_ADDRESS}/iterate/heat_load', json=[rec])
 
 if __name__ == '__main__()':
     app.run(debug=True, host='0.0.0.0', port=9696)

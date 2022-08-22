@@ -54,6 +54,8 @@ To run the web-app the follwing steps are necessary:
 * Run web app
 	* create docker image: ```docker build -t -f dockerfile-app heat-loading-service:v1 .```
 	* run docker container: ```docker run -it -p 9696:9696 heat-loading-service:v1```
+* Run the app with monitoring
+	* ```docker-compose up --build```
 
 ## Repository Structure
 
@@ -108,7 +110,16 @@ To run the web-app the follwing steps are necessary:
 * Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
 
 **```predict-monitoring.py```:** Monitoring (batch, following videos of week 5)
-
+	* Prediction with monitoring
+	* The predictions are stored in a MongoDB
+ 	[* For realtime monitoring evidently and grafana are used]
+	* For batch monitoring
+	[* Note: As mentioned in the videos usually either realtime or batch monitoring are used. I however wanted to use both, in order to get familiar with the workflow of both.]
+	* All the services are run in docker and combined in a docker compose file: ```docker-compose.yaml```
+	* Start the service with ```docker-compose up --build```
+	* Data can be send to the service using ```python3 send-data.py```
+	* The data written in mongoDB can be checked using the notebook ```pymongo-example.ipynb```
+	* The grafan dashboard can be accessed by ```localhost:3000```
 TODO:
 * check port 5000
 * check if outout
