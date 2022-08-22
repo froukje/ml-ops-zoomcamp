@@ -22,7 +22,7 @@ with open("target.csv", 'w') as f_target:
     for i in range(len(data)):
         row = data.iloc[i]
         row['id'] = str(uuid.uuid4())
-        f_target.write(f"{row['id']}\n")
+        f_target.write(f"{row['id']},{row['Y1']}\n")
         row = row.to_json()
         resp = requests.post("http://127.0.0.1:9696/predict",
                              headers={"Content-Type": "application/json"},
