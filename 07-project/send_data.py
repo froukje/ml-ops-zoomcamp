@@ -19,13 +19,14 @@ class DateTimeEncoder(json.JSONEncoder):
 
 
 with open("target.csv", 'w') as f_target:
-    for i in range(len(data)):
-        row = data.iloc[i]
+    for index, row in data.iterrows():
         row['id'] = str(uuid.uuid4())
         f_target.write(f"{row['id']},{row['Y1']}\n")
         row = row.to_json()
+        print(row)
         resp = requests.post("http://127.0.0.1:9696/predict",
                              headers={"Content-Type": "application/json"},
+                             #data=json.dumps(row, cls=DateTimeEncoder)).json()
                              data=row).json()
-        print(f"prediction: {resp['heat load']}")
+        print(f"prediction: {resp['heat_load']}")
         sleep(1)
