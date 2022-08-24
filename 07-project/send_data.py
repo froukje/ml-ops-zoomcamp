@@ -7,9 +7,6 @@ import pandas as pd
 import requests
 
 data = pd.read_csv("data/ENB2012_data.csv")
-#table = pd.read_table("data/ENB2012_data.csv")
-#data = table.to_pylist()
-print(data.head())
 
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
@@ -23,10 +20,8 @@ with open("target.csv", 'w') as f_target:
         row['id'] = str(uuid.uuid4())
         f_target.write(f"{row['id']},{row['Y1']}\n")
         row = row.to_json()
-        print(row)
         resp = requests.post("http://127.0.0.1:9696/predict",
                              headers={"Content-Type": "application/json"},
-                             #data=json.dumps(row, cls=DateTimeEncoder)).json()
                              data=row).json()
         print(f"prediction: {resp['heat_load']}")
         sleep(1)

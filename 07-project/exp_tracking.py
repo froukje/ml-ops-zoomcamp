@@ -111,7 +111,7 @@ def training(X_train, X_val, y_train, y_val, dv, scaler):
 def main(args):
 
     mlflow.set_tracking_uri("sqlite:///mlruns.db")
-    client = MlflowClient("http://127.0.0.1:5005")
+    client = MlflowClient("http://127.0.0.1:5000")
    
     # read data
     data = read_data(args)

@@ -10,11 +10,11 @@ import numpy as np
 from pymongo import MongoClient
 import requests
 
-RUN_ID = 'dd45baed06ef478e9646e1010a0b80f8'
+RUN_ID = 'b03839b56eb74863ba7df86677772c25'
 logged_model = f'./mlruns/1/{RUN_ID}/artifacts/models'
 
 MONGODB_ADDRESS = os.getenv('MONGODB_ADDRESS', 'mongodb://127.0.0.1.27017')
-EVIDENTLY_SERVICE_ADDRESS = os.getenv('EVIDENTLY_SERVICE', 'http://127.0.0.1:5000')
+#EVIDENTLY_SERVICE_ADDRESS = os.getenv('EVIDENTLY_SERVICE', 'http://127.0.0.1:5000')
 
 model = mlflow.pyfunc.load_model(logged_model)
 

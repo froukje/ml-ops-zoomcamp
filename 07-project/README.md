@@ -43,20 +43,6 @@ A. Tsanas, A. Xifara: 'Accurate quantitative estimation of energy performance of
 
 A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity using nonlinear speech signal processing and statistical machine learning', D.Phil. thesis, University of Oxford, 2012
 
-## Quickstart
-
-To run the web-app the follwing steps are necessary:
-* Train and save model
-	* create environment
-	* activate environment
-	* prefect deployment create prefect-deploy.py (or without deployment ...)
-	* the best model is saved in model reistry
-* Run web app
-	* create docker image: ```docker build -t -f dockerfile-app heat-loading-service:v1 .```
-	* run docker container: ```docker run -it -p 9696:9696 heat-loading-service:v1```
-* Run the app with monitoring
-	* ```docker-compose up --build```
-
 ## Repository Structure
 
 **```data-exploration.ipynb```:** Notebook containing data exploration
@@ -74,7 +60,7 @@ To run the web-app the follwing steps are necessary:
 	* To run only training with experiment tracking and model registry use ```exp-tracking.py``` and run it with: ```python3 exp-tracking.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
 * Hyperparameter tuning
 	* Hyperparameter tuning is done via Optuna
-	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ```python3 exp-tracking.py --n-trials 50```, to change it for the final ```training.py``` file, you need to change it directly in the script.
+	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ```python3 exp-tracking.py --n-trials 50```, to change it for the final ```prefect-deploy.py``` file, you need to change it directly in the script.
 	* Model parameters for hyperparameter tuning can also be change via the command line, e.g. ```n-estimators```, ```max-depth```, ```gamma```, ```eta```, etc. for ```exp-tracking.py```. For the final script, they need to be changed in the script.
 * Mlflow experiment tracking and model registry (Following videos from week 2)
 	* mlflow tracking server: sqlite database
@@ -86,8 +72,8 @@ To run the web-app the follwing steps are necessary:
 	* The ```main``` function is turned into a prefect ```flow```
 	* The functions ```read_data```, ```normalize```, ```onehot```, and ```training``` are turned into tasks
 	* To the the prefect UI use ```prefect orion start``` and browse to ```localhost:4200```
-	* To start a prefect flow (without deployment) use the script ```prefect-flow.py``` and run it as before the ```exp-tracking.py``` file
-	* A deployment is used to run the script every 5 minutes. 
+	* To start a prefect flow (without deployment) use the script ```prefect-flow.py``` it is equivalent to ```exp-tracking.py```, but including a prefect flow and tasks
+	* A deployment is used to run the script every 5 minutes. prefect deployment create prefect-deploy.py
 	* To run the prefect deployment use ```prefect deployment create prefect-deploy.py```
 	* Note: to create the deployment, I had to change the code slightly, as the argparse is not working (and also not useful), when the flow is scheduled. 
 	* Create a work queue in the UI, as shown in video 3.5 of the course
@@ -96,31 +82,22 @@ To run the web-app the follwing steps are necessary:
 **```predict.py```:** Deploy model as a web service
 * The model is deployed as a web service (Following videos from week 4)
 	* The model and other needed artifacts are loaded from mlflow model registry. Note: This would be easier following the advice from the videos of creating a pipeline and saving everything together, however, I decided to leave the code as it is to have more functions and with that more flows for the purpose of getting to know the workflow of orchestration better.
-	* The model version needs to be set manually in the ```predict.py``` script!
-	* A virtual envirenment using ```Pipenv``` is created containing ```flask```, ```xgboost==1.6.1```, ```scikit-learn```, ```gunicorn```, ```requests```, ```mlflow``` are created
+	* Note: The model version needs to be set manually in the ```predict.py``` script!
+	* A virtual envirenment using ```Pipenv``` is created containing the needed packages for the app.
 	* Activate the envirenment by ```pipenv shell```
 	* The ```predict.py``` file can be tested locally using ```test-predict.py```. This gives the prediction of one specific input example
 	* The way this is implemented the predict.py file depends on that the tracking server is running. As mentioned in the videos, ideally this dependency should be removed. However, I wanted to try to automatically get the registered model, without putting manually the run_id.
 	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test-predict-flask.py``` in another terminal. This should give the same result as ```test-predict.py```
 
-**```predict-docker.py```:** Deploy model as a web service using docker	
-* The app can be started in Docker
-	* Build the docker image: ```docker build -t -f dockerfile-app heat-loading-service:v1 .```
-	* Run the container: ```docker run -it -p 9696:9696 heat-loading-service:v1```
-* Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
-
-**```predict-monitoring.py```:** Monitoring (batch, following videos of week 5)
-	* Prediction with monitoring
+**```predict-monitoring-batch.py```:** Monitoring (batch, following videos of week 5)
+	* Prediction with batch monitoring
+	* Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
 	* The predictions are stored in a MongoDB
- 	[* For realtime monitoring evidently and grafana are used]
-	* For batch monitoring
-	[* Note: As mentioned in the videos usually either realtime or batch monitoring are used. I however wanted to use both, in order to get familiar with the workflow of both.]
+	* Batch monitoring is included and gives an html report as result 
 	* All the services are run in docker and combined in a docker compose file: ```docker-compose.yaml```
 	* Start the service with ```docker-compose up --build```
 	* Data can be send to the service using ```python3 send-data.py```
 	* The data written in mongoDB can be checked using the notebook ```pymongo-example.ipynb```
-	* The grafan dashboard can be accessed by ```localhost:3000```
-TODO:
-* check port 5000
-* check if outout
-* conda env
+	* Use ```predict-monitoring-batch.py``` to create the monitoring dashboard
+
+**Note:** I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.

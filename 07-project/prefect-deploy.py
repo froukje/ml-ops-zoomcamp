@@ -200,9 +200,6 @@ def main(input_data='data/ENB2012_data.csv',
     print("Registered Models:")
     print(client.list_registered_models())
 
-
-
-    #main(args)
 from prefect.deployments import DeploymentSpec
 from prefect.orion.schemas.schedules import IntervalSchedule
 from prefect.flow_runners import SubprocessFlowRunner

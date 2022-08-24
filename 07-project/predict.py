@@ -7,8 +7,7 @@ import pickle
 import pandas as pd
 import numpy as np
 
-#MLFLOW_TRACKING_URI = "sqlite:///mlruns.db" 
-MLFLOW_TRACKING_URI = "http://127.0.0.1:5005"
+MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
 print("Registered Models:")
@@ -16,7 +15,7 @@ print(client.list_registered_models())
 
 # specify which model to load
 model_name = "heat-load"
-model_version = 2
+model_version = 5
 
 # load the model from the registry
 model = mlflow.pyfunc.load_model(
@@ -47,23 +46,11 @@ with open(scaler_path, 'rb') as f_out:
 def preprocess(data):
 
     # turn json input to dataframe
-
     data = pd.DataFrame([data])
-    data = data.rename(columns={"X1": "relative_compactnes",
-                                "X2": "surface_area",
-                                "X3": "wall_area",
-                                "X4": "roof_area",
-                                "X5": "overall_height",
-                                "X6": "orientation",
-                                "X7": "glazing_area",
-                                "X8": "glazing_area_distribution",
-                                "Y1": "heating_load",
-                                "Y2": "cooling_load"})
-
+    
     # define numerical and categorical features
-    numerical = ["relative_compactnes", "surface_area", "wall_area",
-                 "roof_area", "overall_height", "glazing_area"]
-    categorical = ["orientation", "glazing_area_distribution"]
+    numerical = ["X1", "X2", "X3", "X4", "X5", "X7"]
+    categorical = ["X6", "X8"]
     
     # preprocess numerical features
     X_num = scaler.transform(data[numerical])
@@ -87,7 +74,6 @@ app = Flask('heat-loading')
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
     input_data = request.get_json()
-    print("INPUT", input_data)
     features = preprocess(input_data)
     pred = predict(features)
 

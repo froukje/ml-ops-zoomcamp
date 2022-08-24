@@ -7,7 +7,7 @@ import pickle
 import pandas as pd
 import numpy as np
 
-RUN_ID = '2d5ce3ffec2d45d98fd1796654e7ba42'
+RUN_ID = 'b03839b56eb74863ba7df86677772c25'
 logged_model = f'./mlruns/1/{RUN_ID}/artifacts/models'
 model = mlflow.pyfunc.load_model(logged_model)
 
@@ -27,21 +27,10 @@ def preprocess(data):
     # turn json input to dataframe
 
     data = pd.DataFrame([data])
-    data = data.rename(columns={"X1": "relative_compactnes",
-                                "X2": "surface_area",
-                                "X3": "wall_area",
-                                "X4": "roof_area",
-                                "X5": "overall_height",
-                                "X6": "orientation",
-                                "X7": "glazing_area",
-                                "X8": "glazing_area_distribution",
-                                "Y1": "heating_load",
-                                "Y2": "cooling_load"})
 
     # define numerical and categorical features
-    numerical = ["relative_compactnes", "surface_area", "wall_area",
-                 "roof_area", "overall_height", "glazing_area"]
-    categorical = ["orientation", "glazing_area_distribution"]
+    numerical = ["X1", "X2", "X3", "X4", "X6", "X8"]
+    categorical = ["X5", "X7"]
     
     # preprocess numerical features
     X_num = scaler.transform(data[numerical])
