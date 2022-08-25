@@ -22,8 +22,10 @@ tqdm = "*"
 pyarrow = "*"
 prefect = ">=2.0b"
 evidently = "*"
+optuna = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.8"

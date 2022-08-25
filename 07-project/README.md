@@ -90,7 +90,7 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test-predict-flask.py``` in another terminal. This should give the same result as ```test-predict.py```
 
 **```predict-monitoring-batch.py```:** Monitoring (batch, following videos of week 5)
-	* Prediction with batch monitoring
+* Prediction with batch monitoring
 	* Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
 	* The predictions are stored in a MongoDB
 	* Batch monitoring is included and gives an html report as result 
@@ -99,5 +99,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* Data can be send to the service using ```python3 send-data.py```
 	* The data written in mongoDB can be checked using the notebook ```pymongo-example.ipynb```
 	* Use ```predict-monitoring-batch.py``` to create the monitoring dashboard
+
+**```training-tests.py```** Training script re-structured to make unit tests
+* I realized that the way the training is structured, it is hard to make unit tests, becuase the functions work on the entire training and validation data (e.g. the fuction ```normalize``` normalizes the numerical features by first fitting the scaler to the training data). However, I wanted to work a bit with unit tests and try how it works.Therefore I restructured the script a bit and included functions that are easy to unit test. This is only done for exercise purpose in this project., I don't think this would be a good way to structure the code. I deleted the prefect part in this script to keep it more simple.
+* The tests can be run with the conda environment ```conda run -n <env-name> pytest tests/unit-tests.py``` or with the pipenv ```pipenv run pytest tests/unit-tests.py```. Both from folder ```07-project```.
 
 **Note:** I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
