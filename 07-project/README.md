@@ -57,10 +57,10 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 * Start the Server
 	* Start server for tracking and model registry ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts```
 * Training
-	* To run only training with experiment tracking and model registry use ```exp-tracking.py``` and run it with: ```python3 exp-tracking.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
+	* To run only training with experiment tracking and model registry use ```exp_tracking.py``` and run it with: ```python3 exp_tracking.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
 * Hyperparameter tuning
 	* Hyperparameter tuning is done via Optuna
-	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ```python3 exp-tracking.py --n-trials 50```, to change it for the final ```prefect-deploy.py``` file, you need to change it directly in the script.
+	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ```python3 exp_tracking.py --n-trials 50```, to change it for the final ```prefect_deploy.py``` file, you need to change it directly in the script.
 	* Model parameters for hyperparameter tuning can also be change via the command line, e.g. ```n-estimators```, ```max-depth```, ```gamma```, ```eta```, etc. for ```exp-tracking.py```. For the final script, they need to be changed in the script.
 * Mlflow experiment tracking and model registry (Following videos from week 2)
 	* mlflow tracking server: sqlite database
@@ -87,9 +87,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* Activate the envirenment by ```pipenv shell```
 	* The ```predict.py``` file can be tested locally using ```test-predict.py```. This gives the prediction of one specific input example
 	* The way this is implemented the predict.py file depends on that the tracking server is running. As mentioned in the videos, ideally this dependency should be removed. However, I wanted to try to automatically get the registered model, without putting manually the run_id.
-	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test-predict-flask.py``` in another terminal. This should give the same result as ```test-predict.py```
+	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test_predict_flask.py``` in another terminal. This should give the same result as ```test-predict.py```
 
-**```predict-monitoring-batch.py```:** Monitoring (batch, following videos of week 5)
+**```predict_monitoring.py```:** Monitoring (batch, following videos of week 5)
 * Prediction with batch monitoring
 	* Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
 	* The predictions are stored in a MongoDB
@@ -97,11 +97,14 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* All the services are run in docker and combined in a docker compose file: ```docker-compose.yaml```
 	* Start the service with ```docker-compose up --build```
 	* Data can be send to the service using ```python3 send-data.py```
-	* The data written in mongoDB can be checked using the notebook ```pymongo-example.ipynb```
-	* Use ```predict-monitoring-batch.py``` to create the monitoring dashboard
+	* The data written in mongoDB can be checked using the notebook ```pymongo_example.ipynb```
+	* Use ```predict_monitoring_batch.py``` to create the monitoring dashboard
 
-**```training-tests.py```** Training script re-structured to make unit tests
+**```training_tests.py```** Training script re-structured to make unit tests
 * I realized that the way the training is structured, it is hard to make unit tests, becuase the functions work on the entire training and validation data (e.g. the fuction ```normalize``` normalizes the numerical features by first fitting the scaler to the training data). However, I wanted to work a bit with unit tests and try how it works.Therefore I restructured the script a bit and included functions that are easy to unit test. This is only done for exercise purpose in this project., I don't think this would be a good way to structure the code. I deleted the prefect part in this script to keep it more simple.
-* The tests can be run with the conda environment ```conda run -n <env-name> pytest tests/unit-tests.py``` or with the pipenv ```pipenv run pytest tests/unit-tests.py```. Both from folder ```07-project```.
+* The tests can be run with the conda environment ```conda run -n <env-name> pytest tests/unit_tests.py``` or with the pipenv ```pipenv run pytest tests/unit_tests.py```. Both from folder ```07-project```.
+
+**integration_test_predict.py** (Following video 6.2)
+* This is a script to make an integration test for the app. We can run it, in the docker container. I.e. first run ```docker-compose up --build```, then run ```python3 integration_test_predict.py```. It asserts the prediction of the model.
 
 **Note:** I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
