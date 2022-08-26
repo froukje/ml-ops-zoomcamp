@@ -104,7 +104,14 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 * I realized that the way the training is structured, it is hard to make unit tests, becuase the functions work on the entire training and validation data (e.g. the fuction ```normalize``` normalizes the numerical features by first fitting the scaler to the training data). However, I wanted to work a bit with unit tests and try how it works.Therefore I restructured the script a bit and included functions that are easy to unit test. This is only done for exercise purpose in this project., I don't think this would be a good way to structure the code. I deleted the prefect part in this script to keep it more simple.
 * The tests can be run with the conda environment ```conda run -n <env-name> pytest tests/unit_tests.py``` or with the pipenv ```pipenv run pytest tests/unit_tests.py```. Both from folder ```07-project```.
 
-**integration_test_predict.py** (Following video 6.2)
-* This is a script to make an integration test for the app. We can run it, in the docker container. I.e. first run ```docker-compose up --build```, then run ```python3 integration_test_predict.py```. It asserts the prediction of the model.
+**integration-test** (Following video 6.2)
+* ```integration_test_predict.py```: This is a script to make an integration test for the app. We can run it, in the docker container. I.e. first run ```docker-compose up --build```, then run ```python3 integration_test_predict.py```. It asserts the prediction of the model.
+* ```run.sh```: script to automatically start docker and run the test.
+	* First make it executable: ```chmode +x run.sh```
+	* The run it ```./run.sh```
 
 **Note:** I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
+
+**Future Work:**
+* Deploy on the cloud
+* Make the RUN_ID a variable you can access from the outside, not having to change it manually in the script

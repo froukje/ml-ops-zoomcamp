@@ -1,0 +1,30 @@
+version: '3.7'
+
+volumes:
+    mongo_data: {}
+
+networks:
+  front-tier:
+  back-tier:
+
+services:
+  prediction_service:
+    image: ${LOCAL_IMAGE_NAME}
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_ADDRESS: "mongodb://mongo.:27017/"
+    ports:
+      - "9696:9696"
+    networks:
+      - back-tier
+      - front-tier
+  mongo:
+    image: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - back-tier
+      - front-tier
