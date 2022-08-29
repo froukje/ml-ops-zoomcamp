@@ -72,9 +72,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* The ```main``` function is turned into a prefect ```flow```
 	* The functions ```read_data```, ```normalize```, ```onehot```, and ```training``` are turned into tasks
 	* To the the prefect UI use ```prefect orion start``` and browse to ```localhost:4200```
-	* To start a prefect flow (without deployment) use the script ```prefect-flow.py``` it is equivalent to ```exp-tracking.py```, but including a prefect flow and tasks
+	* To start a prefect flow (without deployment) use the script ```prefect_flow.py``` it is equivalent to ```exp_tracking.py```, but including a prefect flow and tasks
 	* A deployment is used to run the script every 5 minutes. prefect deployment create prefect-deploy.py
-	* To run the prefect deployment use ```prefect deployment create prefect-deploy.py```
+	* To run the prefect deployment use ```prefect deployment create prefect_deploy.py```
 	* Note: to create the deployment, I had to change the code slightly, as the argparse is not working (and also not useful), when the flow is scheduled. 
 	* Create a work queue in the UI, as shown in video 3.5 of the course
 	* Spin up an agend ```prefect agent start <workqueue-id>```, e.g. ```prefect agent start a4bdb288-7329-4a1c-992f-fe62cd898af9```
@@ -85,7 +85,7 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* Note: The model version needs to be set manually in the ```predict.py``` script!
 	* A virtual envirenment using ```Pipenv``` is created containing the needed packages for the app.
 	* Activate the envirenment by ```pipenv shell```
-	* The ```predict.py``` file can be tested locally using ```test-predict.py```. This gives the prediction of one specific input example
+	* The ```predict.py``` file can be tested locally using ```test_predict.py```. This gives the prediction of one specific input example
 	* The way this is implemented the predict.py file depends on that the tracking server is running. As mentioned in the videos, ideally this dependency should be removed. However, I wanted to try to automatically get the registered model, without putting manually the run_id.
 	* The flask app can be tested locally by starting ```gunicorn --bind=0.0.0.0:9696 predict:app``` and then run ```test_predict_flask.py``` in another terminal. This should give the same result as ```test-predict.py```
 
@@ -111,6 +111,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* The run it ```./run.sh```
 
 **Note:** I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
+
+**Code Quality**
+* I used linting for the code quality. However, I did not test all scripts, but only "predict.py" and "prefect_deploy.py" (due o time limitation). In ```.pylintrc``` eceptions are defined.
 
 **Future Work:**
 * Deploy on the cloud

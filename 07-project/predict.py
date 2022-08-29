@@ -1,9 +1,10 @@
+"""
+Deploy model as a web service
+"""
+import pickle
 import mlflow
 from mlflow.tracking import MlflowClient
-from mlflow.entities import ViewType
 from flask import Flask, request, jsonify
-import xgboost as xgb
-import pickle
 import pandas as pd
 import numpy as np
 
@@ -44,7 +45,7 @@ with open(scaler_path, 'rb') as f_out:
     scaler = pickle.load(f_out)
 
 def preprocess(data):
-
+    """ Preprocessing of the data"""
     # turn json input to dataframe
     data = pd.DataFrame([data])
     
@@ -64,7 +65,7 @@ def preprocess(data):
     return X
 
 def predict(X):
-
+    """make predictions"""
     pred = model.predict(X)
     print('prediction', pred[0])
     return float(pred[0])
@@ -73,6 +74,7 @@ app = Flask('heat-loading')
 
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
+    """request input, preprocess it and make prediction"""
     input_data = request.get_json()
     features = preprocess(input_data)
     pred = predict(features)

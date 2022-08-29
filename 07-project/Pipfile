@@ -20,13 +20,16 @@ prometheus-client = "~=0.11.0"
 pyyaml = "~=5.4.1"
 tqdm = "*"
 pyarrow = "*"
-prefect = ">=2.0b"
+prefect = "==2.0b5"
 evidently = "*"
 optuna = "*"
 
 [dev-packages]
 pytest = "*"
 deepdiff = "*"
+pylist = "*"
+black = "*"
+isort = "*"
 
 [requires]
 python_version = "3.8"
