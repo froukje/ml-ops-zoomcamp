@@ -113,7 +113,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 **Note:** I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
 
 **Code Quality**
-* I used linting for the code quality. However, I did not test all scripts, but only "predict.py" and "prefect_deploy.py" (due o time limitation). In ```.pylintrc``` eceptions are defined.
+* I used linting for the code quality. However, I did not test all scripts, but only "predict.py" and "prefect_deploy.py" (due o time limitation). In ```pyproject.toml``` exceptions are defined.
+* ```black``` was used to imporve the formatting ... (black .)
+* ```isort``` was used to organize the imports ... (isort .)
 
 **Future Work:**
 * Deploy on the cloud

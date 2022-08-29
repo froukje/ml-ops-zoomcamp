@@ -2,11 +2,12 @@
 Deploy model as a web service
 """
 import pickle
+
 import mlflow
-from mlflow.tracking import MlflowClient
-from flask import Flask, request, jsonify
-import pandas as pd
 import numpy as np
+import pandas as pd
+from flask import Flask, jsonify, request
+from mlflow.tracking import MlflowClient
 
 MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
@@ -19,9 +20,7 @@ model_name = "heat-load"
 model_version = 5
 
 # load the model from the registry
-model = mlflow.pyfunc.load_model(
-    model_uri=f"models:/{model_name}/{model_version}"
-)
+model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_version}")
 print(f'model loaded: {model}')
 
 # get run_id
@@ -44,15 +43,16 @@ with open(dv_path, 'rb') as f_out:
 with open(scaler_path, 'rb') as f_out:
     scaler = pickle.load(f_out)
 
+
 def preprocess(data):
-    """ Preprocessing of the data"""
+    """Preprocessing of the data"""
     # turn json input to dataframe
     data = pd.DataFrame([data])
-    
+
     # define numerical and categorical features
     numerical = ["X1", "X2", "X3", "X4", "X5", "X7"]
     categorical = ["X6", "X8"]
-    
+
     # preprocess numerical features
     X_num = scaler.transform(data[numerical])
     # preprocess categorical features
@@ -64,13 +64,16 @@ def preprocess(data):
 
     return X
 
+
 def predict(X):
     """make predictions"""
     pred = model.predict(X)
     print('prediction', pred[0])
     return float(pred[0])
 
+
 app = Flask('heat-loading')
+
 
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
@@ -79,12 +82,10 @@ def predict_endpoint():
     features = preprocess(input_data)
     pred = predict(features)
 
-    result = {
-            'heat load': pred,
-            'model_version': RUN_ID
-            }
-   
+    result = {'heat load': pred, 'model_version': RUN_ID}
+
     return jsonify(result)
+
 
 if __name__ == '__main__()':
     app.run(debug=True, host='0.0.0.0', port=9696)

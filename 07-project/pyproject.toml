@@ -6,3 +6,10 @@ disable = [
 	"too-many-locals", 
 	"too-many-arguments"
 	]
+
+[tool.black]
+line-length = 88
+skip-string-normalization = true
+
+[tool.isort]
+multi_line_output = true
