@@ -1,35 +1,34 @@
-# Script to train Energy Efficiency model to predict heating load
-# Author: Frauke Albrecht
+'''Script to train Energy Efficiency model to predict heating load
+Author: Frauke Albrecht'''
 
-import os
-import pandas as pd
-import numpy as np
 import argparse
+import os
 import pickle
-from datetime import datetime
-
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction import DictVectorizer
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
-import xgboost as xgb
-import optuna
-from optuna.samplers import TPESampler
 
 import mlflow
+import numpy as np
+import optuna
+import pandas as pd
+import xgboost as xgb
 from mlflow.tracking import MlflowClient
-
+from optuna.samplers import TPESampler
 from prefect import flow, task
 from prefect.task_runners import SequentialTaskRunner
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
 
 @task
-def read_data(args):
-    ''' read input data and rename column names'''
-    data = pd.read_csv(args.input_data)
+def read_data(args_params):
+    '''read input data and rename column names'''
+    data = pd.read_csv(args_params.input_data)
     return data
 
+
 @task
-def onehot(args, data_train, data_val, categorical):
+def onehot(data_train, data_val, categorical):
     '''one hot encoding of categorical features'''
 
     # change data type from integer to string for categorical features
@@ -38,48 +37,63 @@ def onehot(args, data_train, data_val, categorical):
     train_dicts = data_train[categorical].to_dict(orient="records")
     val_dicts = data_val[categorical].to_dict(orient="records")
 
-    dv = DictVectorizer(sparse=False) # don't use sparse matrix
+    dv = DictVectorizer(sparse=False)  # don't use sparse matrix
     dv.fit(train_dicts)
     X_train_cat = dv.transform(train_dicts)
     X_val_cat = dv.transform(val_dicts)
 
     return X_train_cat, X_val_cat, dv
 
+
 @task
-def normalize(args, data_train, data_val, numerical):
-    ''' normalize numerical features'''
+def normalize(data_train, data_val, numerical):
+    '''normalize numerical features'''
     scaler = StandardScaler()
     X_train_num = scaler.fit_transform(data_train[numerical])
     X_val_num = scaler.transform(data_val[numerical])
-   
+
     return X_train_num, X_val_num, scaler
 
+
 @task
-def training(X_train, X_val, y_train, y_val, dv, scaler, args):
+def training(X_train, X_val, y_train, y_val, dv, scaler, args_params):
     '''training the model with hyperparameter tuning'''
+
     def objective(trial):
         mlflow.set_experiment("xgb-hyper")
         with mlflow.start_run():
-            n_estimators =  trial.suggest_int('n_estimators', args.n_estimators[0], args.n_estimators[1], log=True)
-            eta = trial.suggest_float('eta', args.eta[0], args.eta[1], log=True)
-            gamma = trial.suggest_float('gamma', args.gamma[0], args.gamma[1])
-            alpha = trial.suggest_float('alpha', args.alpha[0], args.alpha[1])
-            max_depth = trial.suggest_categorical('max_depth', args.max_depth)
-            min_child_weight = trial.suggest_categorical('min_child_weight', args.min_child_weight)
-        
-            params = {"objective": 'reg:squarederror',
-                      "n_estimators": n_estimators,
-                      "eta": eta,
-                      "gamma": gamma,
-                      "alpha": alpha,
-                      "max_depth": max_depth,
-                      "min_child_weight": min_child_weight,
-                      "verbosity": 1}
+            n_estimators = trial.suggest_int(
+                'n_estimators', args.n_estimators[0], args.n_estimators[1], log=True
+            )
+            eta = trial.suggest_float(
+                'eta', args_params.eta[0], args_params.eta[1], log=True
+            )
+            gamma = trial.suggest_float(
+                'gamma', args_params.gamma[0], args_params.gamma[1]
+            )
+            alpha = trial.suggest_float(
+                'alpha', args_params.alpha[0], args_params.alpha[1]
+            )
+            max_depth = trial.suggest_categorical('max_depth', args_params.max_depth)
+            min_child_weight = trial.suggest_categorical(
+                'min_child_weight', args_params.min_child_weight
+            )
+
+            params = {
+                "objective": 'reg:squarederror',
+                "n_estimators": n_estimators,
+                "eta": eta,
+                "gamma": gamma,
+                "alpha": alpha,
+                "max_depth": max_depth,
+                "min_child_weight": min_child_weight,
+                "verbosity": 1,
+            }
 
             model = xgb.XGBRegressor(**params)
             model.fit(X_train, y_train)
-            y_pred_train = model.predict(X_train).reshape(-1,1)
-            y_pred_val = model.predict(X_val).reshape(-1,1)
+            y_pred_train = model.predict(X_train).reshape(-1, 1)
+            y_pred_val = model.predict(X_val).reshape(-1, 1)
             rmse_train = mean_squared_error(y_pred_train, y_train, squared=False)
             rmse_val = mean_squared_error(y_pred_val, y_val, squared=False)
 
@@ -88,8 +102,8 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
             mlflow.log_metric('rmse_val', rmse_val)
 
             # save scaler and dv as artifacts
-            dv_name = f'dv.bin'
-            scaler_name = f'scaler.bin'
+            dv_name = 'dv.bin'
+            scaler_name = 'scaler.bin'
             dv_path = os.path.join(args.output, dv_name)
             scaler_path = os.path.join(args.output, scaler_name)
             with open(dv_path, 'wb') as f_out:
@@ -101,39 +115,44 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
 
             # save model
             mlflow.xgboost.log_model(model, artifact_path="models")
-            
+
             # save run id
             run = mlflow.active_run()
             run_id = run.info.run_id
             trial.set_user_attr('run_id', run_id)
-        
+
             return rmse_val
 
     study = optuna.create_study(sampler=TPESampler(), direction='minimize')
     study.optimize(objective, n_trials=args.n_trials)
-    
+
     return study
 
-@flow(task_runner=SequentialTaskRunner())
-def main(args):
 
-    #mlflow.set_tracking_uri("http://127.0.0.1:5000")
+@flow(task_runner=SequentialTaskRunner())
+def main(args_params):
+    '''prepare data and make predictions'''
+    # mlflow.set_tracking_uri("http://127.0.0.1:5000")
     mlflow.set_tracking_uri("sqlite:///mlruns.db")
     client = MlflowClient("http://127.0.0.1:5000")
 
     # read data
-    data = read_data(args).result()
+    data = read_data(args_params).result()
 
     # define features and target
-    features = ["X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8"] 
+    features = ["X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8"]
     target = "Y1"
     # define numerical and categorical features
     numerical = ["X1", "X2", "X3", "X4", "X5", "X7"]
-    categorical = ["X6", "X8"] 
+    categorical = ["X6", "X8"]
 
     # train-/ val-/ test split
-    data_train_full, data_test = train_test_split(data[features+[target]], test_size=0.2, random_state=42)
-    data_train, data_val = train_test_split(data_train_full[features+[target]], test_size=0.25, random_state=42)
+    data_train_full, data_test = train_test_split(
+        data[features + [target]], test_size=0.2, random_state=42
+    )
+    data_train, data_val = train_test_split(
+        data_train_full[features + [target]], test_size=0.25, random_state=42
+    )
 
     data_train_full = data_train_full.reset_index(drop=True)
     data_train = data_train.reset_index(drop=True)
@@ -144,12 +163,12 @@ def main(args):
     print(f"train data length {len(data_train)}")
     print(f"val data length {len(data_val)}")
     print(f"test data length {len(data_test)}")
-   
+
     # preprocessing
     ## normalize numerical variables
-    X_train_num, X_val_num, scaler = normalize(args, data_train, data_val, numerical).result()
-    ## one-hot encode categorical variables 
-    X_train_cat, X_val_cat, dv = onehot(args, data_train, data_val, categorical).result()
+    X_train_num, X_val_num, scaler = normalize(data_train, data_val, numerical).result()
+    ## one-hot encode categorical variables
+    X_train_cat, X_val_cat, dv = onehot(data_train, data_val, categorical).result()
 
     # concatenate numerical and categorical features
     X_train = np.concatenate((X_train_num, X_train_cat), axis=1)
@@ -160,9 +179,9 @@ def main(args):
     # define the target
     y_train = data_train[target]
     y_val = data_val[target]
-    
+
     # train the model with hyperparameter tuning
-    study = training(X_train, X_val, y_train, y_val, dv, scaler, args).result()
+    study = training(X_train, X_val, y_train, y_val, dv, scaler, args_params).result()
     print("Number of finished trials: ", len(study.trials))
 
     # save best parameters
@@ -175,12 +194,10 @@ def main(args):
 
     # register best model
     run_id = attr["run_id"]
-    mlflow.register_model(
-        model_uri=f"runs:/{run_id}/models",
-        name='heat-load'
-    )
+    mlflow.register_model(model_uri=f"runs:/{run_id}/models", name='heat-load')
     print("Registered Models:")
     print(client.list_registered_models())
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -192,9 +209,11 @@ if __name__ == '__main__':
     parser.add_argument('--max-depth', type=int, nargs='+', default=[5, 10, 100, None])
     parser.add_argument('--max-depth-none', action='store_true', default=False)
     parser.add_argument('--min-samples-leaf', type=int, nargs='+', default=[1, 10, 50])
-    parser.add_argument('--eta', type=float, nargs='+', default=[0.1, 0.5]) # default 0.3
-    parser.add_argument('--gamma', type=float, nargs='+', default=[0, 1]) # default=0
-    parser.add_argument('--alpha', type=float, nargs='+', default=[0, 1]) # default=0
+    parser.add_argument(
+        '--eta', type=float, nargs='+', default=[0.1, 0.5]
+    )  # default 0.3
+    parser.add_argument('--gamma', type=float, nargs='+', default=[0, 1])  # default=0
+    parser.add_argument('--alpha', type=float, nargs='+', default=[0, 1])  # default=0
     parser.add_argument('--min-child_weight', type=int, nargs='+', default=[1, 10, 50])
     # nr of trials for hyperparameter tuning
     parser.add_argument('--n-trials', type=int, default='200')

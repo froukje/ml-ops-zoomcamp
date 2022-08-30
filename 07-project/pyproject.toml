@@ -4,7 +4,8 @@ disable = [
 	"invalid-name", 
 	"import-error", 
 	"too-many-locals", 
-	"too-many-arguments"
+	"too-many-arguments",
+	"no-member"
 	]
 
 [tool.black]

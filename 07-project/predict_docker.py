@@ -1,11 +1,10 @@
-import mlflow
-from mlflow.tracking import MlflowClient
-from mlflow.entities import ViewType
-from flask import Flask, request, jsonify
-import xgboost as xgb
+'''app for making prediction of heat load (using docker)'''
 import pickle
-import pandas as pd
+
+import mlflow
 import numpy as np
+import pandas as pd
+from flask import Flask, jsonify, request
 
 RUN_ID = 'b03839b56eb74863ba7df86677772c25'
 logged_model = f'./mlruns/1/{RUN_ID}/artifacts/models'
@@ -23,7 +22,7 @@ with open(scaler_path, 'rb') as f_out:
 
 
 def preprocess(data):
-
+    '''preprocess the input data'''
     # turn json input to dataframe
 
     data = pd.DataFrame([data])
@@ -31,7 +30,7 @@ def preprocess(data):
     # define numerical and categorical features
     numerical = ["X1", "X2", "X3", "X4", "X6", "X8"]
     categorical = ["X5", "X7"]
-    
+
     # preprocess numerical features
     X_num = scaler.transform(data[numerical])
     # preprocess categorical features
@@ -43,27 +42,29 @@ def preprocess(data):
 
     return X
 
-def predict(X):
 
+def predict(X):
+    '''make predictions'''
     pred = model.predict(X)
     print('prediction', pred[0])
     return float(pred[0])
 
+
 app = Flask('heat-loading')
+
 
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
+    '''get data and make predictions'''
     input_data = request.get_json()
     print("INPUT", input_data)
     features = preprocess(input_data)
     pred = predict(features)
 
-    result = {
-            'heat load': pred,
-            'model_version': RUN_ID
-            }
-   
+    result = {'heat load': pred, 'model_version': RUN_ID}
+
     return jsonify(result)
+
 
 if __name__ == '__main__()':
     app.run(debug=True, host='0.0.0.0', port=9696)
