@@ -1,10 +1,12 @@
+'''unit tests for trainingstest.py'''
 import sys
 
-sys.path.append('../')
 import numpy as np
 import pandas as pd
 
 import trainingtests
+
+sys.path.append('../')
 
 
 def test_to_string():

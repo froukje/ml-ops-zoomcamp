@@ -1,11 +1,13 @@
 [tool.pylint.messages_control]
 
 disable = [
-	"invalid-name", 
-	"import-error", 
-	"too-many-locals", 
+	"invalid-name",
+	"import-error",
+	"too-many-locals",
 	"too-many-arguments",
-	"no-member"
+	"no-member",
+	"unused-import",
+	"duplicate-code"
 	]
 
 [tool.black]
@@ -13,4 +15,5 @@ line-length = 88
 skip-string-normalization = true
 
 [tool.isort]
-multi_line_output = true
+multi_line_output = 3
+profile = "black"

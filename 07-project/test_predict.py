@@ -1,3 +1,5 @@
+'''test prediction, ```predict.py``` (without flask)'''
+# pylint: disable=duplicate-code
 import predict
 
 input_example = {

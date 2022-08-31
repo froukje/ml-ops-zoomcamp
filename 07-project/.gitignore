@@ -1,2 +1,9 @@
 data/*
 __pycache__/*
+.ipynb_checkpoints/*
+mlruns/*
+mlruns.db
+output/*
+evidently_service/datasets/*
+evidently_service/dashboards/*
+evidently_report_example.html

@@ -27,6 +27,7 @@ with open("target.csv", 'w', encoding="utf-8") as f_target:
             "http://127.0.0.1:9696/predict",
             headers={"Content-Type": "application/json"},
             data=row,
+            timeout=5,
         ).json()
         print(f"prediction: {resp['heat_load']}")
         sleep(1)

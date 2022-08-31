@@ -1,3 +1,4 @@
+'''integration test for example input'''
 import json
 
 import requests
@@ -16,7 +17,7 @@ input_example = {
 
 
 url = 'http://localhost:9696/predict'
-actual_response = requests.post(url, json=input_example).json()
+actual_response = requests.post(url, json=input_example, timeout=5).json()
 
 print('actual response')
 print(json.dumps(actual_response, indent=2))

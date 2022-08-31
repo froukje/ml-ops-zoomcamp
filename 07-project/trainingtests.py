@@ -1,11 +1,11 @@
-# Script to train Energy Efficiency model to predict heating load
-# Author: Frauke Albrecht
+'''Script to train Energy Efficiency model to predict heating load \
+        this script has been modified from the original training script \
+        in order to include unit tests. It is only for exercise purpose \
+        and not part of the workflow'''
 
-import argparse
 import os
 import pickle
 from collections import namedtuple
-from datetime import datetime
 
 import mlflow
 import numpy as np
@@ -17,12 +17,12 @@ from optuna.samplers import TPESampler
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 
 def read_data(args):
     '''read input data and rename column names'''
+    # pylint: disable=duplicate-code
     data = pd.read_csv(args.input_data)
     return data
 
@@ -36,11 +36,14 @@ def cat_to_string(data, categorical):
 
 
 def concatenate(X_num, X_cat):
+    '''concatenate numerical and categorical features'''
     X = np.concatenate((X_num, X_cat), axis=1)
     return X
 
 
-def onehot(args, data_train, data_val, categorical):
+def onehot(data_train, data_val, categorical):
+    '''one-hot encoding of categorical features'''
+    # pylint: disable=duplicate-code
     train_dicts = data_train[categorical].to_dict(orient="records")
     val_dicts = data_val[categorical].to_dict(orient="records")
 
@@ -52,8 +55,9 @@ def onehot(args, data_train, data_val, categorical):
     return X_train_cat, X_val_cat, dv
 
 
-def normalize(args, data_train, data_val, numerical):
+def normalize(data_train, data_val, numerical):
     '''normalize numerical features'''
+    # pylint: disable=duplicate-code
     scaler = StandardScaler()
     X_train_num = scaler.fit_transform(data_train[numerical])
     X_val_num = scaler.transform(data_val[numerical])
@@ -63,8 +67,9 @@ def normalize(args, data_train, data_val, numerical):
 
 def training(X_train, X_val, y_train, y_val, dv, scaler, args):
     '''training the model with hyperparameter tuning'''
-
+    # pylint: disable=duplicate-code
     def objective(trial):
+        # pylint: disable=duplicate-code
         mlflow.set_experiment("xgb-hyper")
         with mlflow.start_run():
             n_estimators = trial.suggest_int(
@@ -101,8 +106,8 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
             mlflow.log_metric('rmse_val', rmse_val)
 
             # save scaler and dv as artifacts
-            dv_name = f'dv.bin'
-            scaler_name = f'scaler.bin'
+            dv_name = 'dv.bin'
+            scaler_name = 'scaler.bin'
             dv_path = os.path.join(args.output, dv_name)
             scaler_path = os.path.join(args.output, scaler_name)
             with open(dv_path, 'wb') as f_out:
@@ -129,7 +134,9 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
 
 
 def main(input_data='data/ENB2012_data.csv', output='output'):
-
+    '''preprocess data and train a model'''
+    # pylint: disable=no-member
+    # pylint: disable=duplicate-code
     args_dict = {}
     args_dict["input_data"] = input_data
     args_dict["output"] = output
@@ -159,7 +166,7 @@ def main(input_data='data/ENB2012_data.csv', output='output'):
     categorical = ["X6", "X8"]
 
     # change type of categorical variables to string
-    data = to_string(data, categorical)
+    data = cat_to_string(data, categorical)
 
     # train-/ val-/ test split
     data_train_full, data_test = train_test_split(
@@ -181,13 +188,9 @@ def main(input_data='data/ENB2012_data.csv', output='output'):
 
     # preprocessing
     ## normalize numerical variables
-    X_train_num, X_val_num, scaler = normalize(
-        args, data_train, data_val, numerical
-    ).result()
+    X_train_num, X_val_num, scaler = normalize(data_train, data_val, numerical).result()
     ## one-hot encode categorical variables
-    X_train_cat, X_val_cat, dv = onehot(
-        args, data_train, data_val, categorical
-    ).result()
+    X_train_cat, X_val_cat, dv = onehot(data_train, data_val, categorical).result()
 
     # concatenate numerical and categorical features
     X_train = concatenate(X_train_num, X_train_cat)

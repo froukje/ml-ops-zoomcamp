@@ -121,6 +121,7 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
 @flow(task_runner=SequentialTaskRunner())
 def main(input_data='data/ENB2012_data.csv', output='output'):
     """main function to train the model"""
+    # pylint: disable=no-member
     args_dict = {}
     args_dict["input_data"] = input_data
     args_dict["output"] = output

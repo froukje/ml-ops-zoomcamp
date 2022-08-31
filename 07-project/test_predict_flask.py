@@ -1,3 +1,5 @@
+'''test prediction script ```predict_flask.py``` with example data'''
+# pylint: disable=duplicate-code
 import requests
 
 input_example = {
@@ -13,5 +15,5 @@ input_example = {
 
 
 url = 'http://localhost:9696/predict'
-response = requests.post(url, json=input_example)
+response = requests.post(url, json=input_example, timeout=5)
 print(response.json())

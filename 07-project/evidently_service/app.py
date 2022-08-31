@@ -4,11 +4,12 @@
 This is a demo service for Evidently metrics integration with Prometheus and Grafana.
 Read `README.md` for proper setup and installation.
 The service gets a reference dataset from reference.csv file and process current data with HTTP API.
-Metrics calculation results are available with `GET /metrics` HTTP method in Prometheus compatible format.
+Metrics calc results are avail. with `GET /metrics` HTTP method in Prometheus compatible format.
 """
 import dataclasses
 import datetime
-import hashlib
+
+# import hashlib
 import logging
 import os
 from typing import Dict, List, Optional
@@ -17,16 +18,19 @@ import flask
 import pandas as pd
 import prometheus_client
 import yaml
-from evidently.model_monitoring import (CatTargetDriftMonitor,
-                                        ClassificationPerformanceMonitor,
-                                        DataDriftMonitor,
-                                        DataQualityMonitor,
-                                        ModelMonitoring,
-                                        NumTargetDriftMonitor,
-                                        ProbClassificationPerformanceMonitor,
-                                        RegressionPerformanceMonitor)
+from evidently.model_monitoring import (
+    CatTargetDriftMonitor,
+    ClassificationPerformanceMonitor,
+    DataDriftMonitor,
+    DataQualityMonitor,
+    ModelMonitoring,
+    NumTargetDriftMonitor,
+    ProbClassificationPerformanceMonitor,
+    RegressionPerformanceMonitor,
+)
 from evidently.pipeline.column_mapping import ColumnMapping
-from evidently.runner.loader import DataLoader, DataOptions
+
+# from evidently.runner.loader import DataLoader, DataOptions
 # from pyarrow import parquet as pq
 from flask import Flask
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
@@ -47,6 +51,7 @@ app.wsgi_app = DispatcherMiddleware(
 
 @dataclasses.dataclass
 class MonitoringServiceOptions:
+    # pylint: disable=missing-class-docstring
     datasets_path: str
     min_reference_size: int
     use_reference: bool
@@ -57,6 +62,7 @@ class MonitoringServiceOptions:
 
 @dataclasses.dataclass
 class LoadedDataset:
+    # pylint: disable=missing-class-docstring
     name: str
     references: pd.DataFrame
     monitors: List[str]
@@ -75,6 +81,8 @@ EVIDENTLY_MONITORS_MAPPING = {
 
 
 class MonitoringService:
+    # pylint: disable=missing-class-docstring
+    # pylint: disable=too-few-public-methods
     # names of monitoring datasets
     datasets: List[str]
     metric: Dict[str, prometheus_client.Gauge]
@@ -110,6 +118,8 @@ class MonitoringService:
 
     def iterate(self, dataset_name: str, new_rows: pd.DataFrame):
         """Add data to current dataset for specified dataset"""
+        # pylint: disable=logging-fstring-interpolation
+        # pylint: disable=logging-too-many-args
         window_size = self.window_size
 
         if dataset_name in self.current:
@@ -184,6 +194,9 @@ SERVICE: Optional[MonitoringService] = None
 @app.before_first_request
 def configure_service():
     # pylint: disable=global-statement
+    # pylint: disable=missing-function-docstring
+    # pylint: disable=consider-using-sys-exit
+    # pylint: disable=logging-fstring-interpolation
     global SERVICE
     config_file_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "config.yaml"
@@ -193,7 +206,8 @@ def configure_service():
     if not os.path.exists(config_file_path):
         logging.error("File %s does not exist", config_file_path)
         exit(
-            "Cannot find a config file for the metrics service. Try to check README.md for setup instructions."
+            "Cannot find a config file for the metrics service. \
+                    Try to check README.md for setup instructions."
         )
 
     with open(config_file_path, "rb") as config_file:
@@ -225,6 +239,8 @@ def configure_service():
 
 @app.route("/iterate/<dataset>", methods=["POST"])
 def iterate(dataset: str):
+    # pylint: disable=missing-function-docstring
+    # pylint: disable=global-variable-not-assigned
     item = flask.request.json
 
     global SERVICE

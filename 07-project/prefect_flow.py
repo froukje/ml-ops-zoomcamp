@@ -23,6 +23,7 @@ from sklearn.preprocessing import StandardScaler
 @task
 def read_data(args_params):
     '''read input data and rename column names'''
+    # pylint: disable=duplicate-code
     data = pd.read_csv(args_params.input_data)
     return data
 
@@ -30,6 +31,7 @@ def read_data(args_params):
 @task
 def onehot(data_train, data_val, categorical):
     '''one hot encoding of categorical features'''
+    # pylint: disable=duplicate-code
 
     # change data type from integer to string for categorical features
     data_train[categorical] = data_train[categorical].astype("string")
@@ -48,6 +50,7 @@ def onehot(data_train, data_val, categorical):
 @task
 def normalize(data_train, data_val, numerical):
     '''normalize numerical features'''
+    # pylint: disable=duplicate-code
     scaler = StandardScaler()
     X_train_num = scaler.fit_transform(data_train[numerical])
     X_val_num = scaler.transform(data_val[numerical])
@@ -58,8 +61,10 @@ def normalize(data_train, data_val, numerical):
 @task
 def training(X_train, X_val, y_train, y_val, dv, scaler, args_params):
     '''training the model with hyperparameter tuning'''
+    # pylint: disable=duplicate-code
 
     def objective(trial):
+        # pylint: disable=duplicate-code
         mlflow.set_experiment("xgb-hyper")
         with mlflow.start_run():
             n_estimators = trial.suggest_int(
@@ -132,7 +137,8 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args_params):
 @flow(task_runner=SequentialTaskRunner())
 def main(args_params):
     '''prepare data and make predictions'''
-    # mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    # pylint: disable=no-member
+    # pylint: disable=duplicate-code
     mlflow.set_tracking_uri("sqlite:///mlruns.db")
     client = MlflowClient("http://127.0.0.1:5000")
 
@@ -200,6 +206,7 @@ def main(args_params):
 
 
 if __name__ == '__main__':
+    # pylint: disable=duplicate-code
     parser = argparse.ArgumentParser()
     # data locations
     parser.add_argument('--input-data', type=str, default='data/ENB2012_data.csv')

@@ -4,7 +4,7 @@ Analyzing the energy efficiency of buildings gains more and more importancy cons
 
 ## Objective
 
-Predict the "Heating Load", depending on different building features. 
+Predict the "Heating Load", depending on different building features.
 
 Note: The Dataset contains another predictable variable, "Cooling Load", which can also be predicted from the given features. However, in this project we will focus on only one model predicting the "Heating Load".
 
@@ -43,6 +43,14 @@ A. Tsanas, A. Xifara: 'Accurate quantitative estimation of energy performance of
 
 A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity using nonlinear speech signal processing and statistical machine learning', D.Phil. thesis, University of Oxford, 2012
 
+## Getting started
+
+* clone the git repository
+* run ```pipenv install --dev```
+* install git pre commit: ```pre commit install```
+* activate the virtual environment: ```pipenv shell```
+* to run the code, the data needs to be downloaded: https://www.kaggle.com/datasets/elikplim/eergy-efficiency-dataset and stored in the folders ```data``` and ```evidently_service/datasets```
+
 ## Repository Structure
 
 **```data-exploration.ipynb```:** Notebook containing data exploration
@@ -66,7 +74,7 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* mlflow tracking server: sqlite database
 	* mlflow backend store: sqlite database
 	* mlflow artifacts store: local filesystem
-	* Best model (lowest validation metric: RMSE) is automatially registered using mlflow. Note: Even better would be to compare with the previous registered model and only register the new one if it is better than the previous one. 
+	* Best model (lowest validation metric: RMSE) is automatially registered using mlflow. Note: Even better would be to compare with the previous registered model and only register the new one if it is better than the previous one.
 	* Experiment tracking and model registry UI can be accessed via ```localhost:5000``` in the browser
 * Orchestration using prefect (Following videos from week 3)
 	* The ```main``` function is turned into a prefect ```flow```
@@ -75,7 +83,7 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* To start a prefect flow (without deployment) use the script ```prefect_flow.py``` it is equivalent to ```exp_tracking.py```, but including a prefect flow and tasks
 	* A deployment is used to run the script every 5 minutes. prefect deployment create prefect-deploy.py
 	* To run the prefect deployment use ```prefect deployment create prefect_deploy.py```
-	* Note: to create the deployment, I had to change the code slightly, as the argparse is not working (and also not useful), when the flow is scheduled. 
+	* Note: to create the deployment, I had to change the code slightly, as the argparse is not working (and also not useful), when the flow is scheduled.
 	* Create a work queue in the UI, as shown in video 3.5 of the course
 	* Spin up an agend ```prefect agent start <workqueue-id>```, e.g. ```prefect agent start a4bdb288-7329-4a1c-992f-fe62cd898af9```
 
@@ -93,7 +101,7 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 * Prediction with batch monitoring
 	* Note: for running the app in docker I changed the code from ```predict.py``` and made it independend of the tracking server. However, now manually the ```RUN_ID``` of the selected model has to be given in the script.
 	* The predictions are stored in a MongoDB
-	* Batch monitoring is included and gives an html report as result 
+	* Batch monitoring is included and gives an html report as result
 	* All the services are run in docker and combined in a docker compose file: ```docker-compose.yaml```
 	* Start the service with ```docker-compose up --build```
 	* Data can be send to the service using ```python3 send-data.py```
@@ -114,9 +122,10 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 
 **Code Quality**
 * I used linting for the code quality. All scripts, except the scripts for testing were linted.
-* ```black``` was used to imporve the formatting: ```black .```
+* ```black``` was used to improve the formatting: ```black .```
 * ```isort``` was used to organize the imports: ```isort .```
 * In ```pyproject.toml``` exceptions are defined.
+* git pre-commit hooks are defined in ```.pre-commit-config.yaml```. (Note: I didn't include the unit tests, because they are only included here for learning purpose and not relevant to the relevant project files)
 
 **Future Work:**
 * Deploy on the cloud
