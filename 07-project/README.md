@@ -127,6 +127,15 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 * In ```pyproject.toml``` exceptions are defined.
 * git pre-commit hooks are defined in ```.pre-commit-config.yaml```. (Note: I didn't include the unit tests, because they are only included here for learning purpose and not relevant to the relevant project files)
 
+**Makefile**
+* a makefile is added to easily perform different steps
+    * ```make setup``` installs pipenv envirinment and git pre-commit hooks
+    * ```make test``` performs unit tests
+    * ```make integration-test``` performs integration test
+    * ```make quality_checks``` checks code quality using ```isort```, ```black```, and ```pylint```
+    * ```make build``` builds docker image
+    * ```make publish``` (pretends to) publish to ECR (this is not really publishing) 	 
+
 **Future Work:**
 * Deploy on the cloud
 * Make the RUN_ID a variable you can access from the outside, not having to change it manually in the script

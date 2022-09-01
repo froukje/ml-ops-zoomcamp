@@ -11,6 +11,7 @@ sys.path.append('../')
 
 def test_to_string():
     '''test for function 'onehot' in trainingtests.py'''
+    # pylint: disable=duplicate-code
     # example input
     input_example = {
         "X1": 0.98,
@@ -36,6 +37,7 @@ def test_to_string():
 
 def test_concatenate():
     '''test for function 'concatenate' in trainingtests.py'''
+    # pylint: disable=duplicate-code
     # example input
     input_example = {
         "X1": 0.98,

@@ -12,26 +12,32 @@ RUN_ID = 'b03839b56eb74863ba7df86677772c25'
 logged_model = f'./mlruns/1/{RUN_ID}/artifacts/models'
 
 MONGODB_ADDRESS = os.getenv('MONGODB_ADDRESS', 'mongodb://127.0.0.1.27017')
-
-model = mlflow.pyfunc.load_model(logged_model)
-
-dv_path = f'./mlruns/1/{RUN_ID}/artifacts/dv.bin'
-scaler_path = f'./mlruns/1/{RUN_ID}/artifacts/scaler.bin'
-
-with open(dv_path, 'rb') as f_out:
-    dv = pickle.load(f_out)
-with open(scaler_path, 'rb') as f_out:
-    scaler = pickle.load(f_out)
-
 app = Flask('heat_load')
 mongo_client = MongoClient(MONGODB_ADDRESS)
 db = mongo_client.get_database('prediction_service')
 collection = db.get_collection('data')
 
 
+def load_model():
+    '''load model, dioctionary vectorizer and scaler'''
+    # pylint: disable=duplicate-code
+    # pylint: disable=redefined-outer-name
+    model = mlflow.pyfunc.load_model(logged_model)
+
+    dv_path = f'./mlruns/1/{RUN_ID}/artifacts/dv.bin'
+    scaler_path = f'./mlruns/1/{RUN_ID}/artifacts/scaler.bin'
+
+    with open(dv_path, 'rb') as f_out:
+        dv = pickle.load(f_out)
+    with open(scaler_path, 'rb') as f_out:
+        scaler = pickle.load(f_out)
+    return model, dv, scaler
+
+
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
     '''request data and make predictions'''
+    model, dv, scaler = load_model()
     record = request.get_json()
 
     # turn json input to dataframe

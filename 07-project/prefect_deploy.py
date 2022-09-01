@@ -28,6 +28,7 @@ from sklearn.preprocessing import StandardScaler
 
 @task
 def read_data(args):
+    # pylint: disable=duplicate-code
     '''read input data and rename column names'''
     data = pd.read_csv(args.input_data)
     return data
@@ -36,6 +37,7 @@ def read_data(args):
 @task
 def onehot(data_train, data_val, categorical):
     '''one hot encoding of categorical features'''
+    # pylint: disable=duplicate-code
 
     # change data type from integer to string for categorical features
     data_train[categorical] = data_train[categorical].astype("string")
@@ -53,6 +55,7 @@ def onehot(data_train, data_val, categorical):
 @task
 def normalize(data_train, data_val, numerical):
     '''normalize numerical features'''
+    # pylint: disable=duplicate-code
     scaler = StandardScaler()
     X_train_num = scaler.fit_transform(data_train[numerical])
     X_val_num = scaler.transform(data_val[numerical])
@@ -62,8 +65,9 @@ def normalize(data_train, data_val, numerical):
 @task
 def training(X_train, X_val, y_train, y_val, dv, scaler, args):
     '''training the model with hyperparameter tuning'''
-
+    # pylint: disable=duplicate-code
     def objective(trial):
+        # pylint: disable=duplicate-code
         mlflow.set_experiment("xgb-hyper")
         with mlflow.start_run():
             n_estimators = trial.suggest_int(
@@ -122,10 +126,11 @@ def training(X_train, X_val, y_train, y_val, dv, scaler, args):
 def main(input_data='data/ENB2012_data.csv', output='output'):
     """main function to train the model"""
     # pylint: disable=no-member
+    # pylint: disable=duplicate-code
     args_dict = {}
     args_dict["input_data"] = input_data
     args_dict["output"] = output
-    args_dict["n_estimators"] = [500, 1000]
+    args_dict["n_estimduplicate-codeators"] = [500, 1000]
     args_dict["max_depth"] = [5, 10, 100, None]
     args_dict["min_samples_leaf"] = [1, 10, 50]
     args_dict["eta"] = [0.1, 0.5]

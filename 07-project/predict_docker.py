@@ -24,7 +24,7 @@ with open(scaler_path, 'rb') as f_out:
 def preprocess(data):
     '''preprocess the input data'''
     # turn json input to dataframe
-
+    # pylint: disable=duplicate-code
     data = pd.DataFrame([data])
 
     # define numerical and categorical features
@@ -45,6 +45,7 @@ def preprocess(data):
 
 def predict(X):
     '''make predictions'''
+    # pylint: disable=duplicate-code
     pred = model.predict(X)
     print('prediction', pred[0])
     return float(pred[0])
@@ -55,6 +56,7 @@ app = Flask('heat-loading')
 
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
+    # pylint: disable=duplicate-code
     '''get data and make predictions'''
     input_data = request.get_json()
     print("INPUT", input_data)
