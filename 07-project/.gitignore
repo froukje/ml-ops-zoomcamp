@@ -7,3 +7,5 @@ output/*
 evidently_service/datasets/*
 evidently_service/dashboards/*
 evidently_report_example.html
+working-steps/mlruns/*
+working-steps/mlruns.db

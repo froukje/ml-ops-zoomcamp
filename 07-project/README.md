@@ -45,23 +45,40 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 
 ## Getting started
 
-* clone the git repository
-* run ```pipenv install --dev```
-* install git pre commit: ```pre commit install```
-* activate the virtual environment: ```pipenv shell```
-* to run the code, the data needs to be downloaded: https://www.kaggle.com/datasets/elikplim/eergy-efficiency-dataset and stored in the folders ```data``` and ```evidently_service/datasets```
+The following steps describe how to run the project. More detailed explanations of the workflow, the scripts and also of code quality, tests and how to use the Makefile are in the next section.
+
+* Prerequisites
+  * Clone the git repository
+  * Run ```pipenv install --dev```
+  * Install git pre commit: ```pre-commit install```
+  * Activate the virtual environment: ```pipenv shell```
+  * To run the code, the data needs to be downloaded: https://www.kaggle.com/datasets/elikplim/eergy-efficiency-dataset and stored in the folders ```data``` and ```evidently_service/datasets```
+* Training
+  * Start mlflow server ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts```
+  * Create a prefect deployment for training: ```prefect deployment create prefect_deploy.py```
+  * Run ```prefect orion start``` and browse to ```localhost:4200``` to access the prefect UI
+  * Create a work queue (as shown in video 3.5 of the zoomcamp)
+  * Spin up an agend ```prefect agent start <workqueue-id>```, e.g. ```prefect agent start a4bdb288-7329-4a1c-992f-fe62cd898af9```
+* Monitoring
+  * Set the ```RUN_ID``` of the desired model in ```predict_monitoring.py``` and ```predict_monitoring_batch.py```
+  * Start the service with ```docker-compose up --build```
+  * Pretend that the service receives data with ```python3 send-data.py``` (Note: This is the same data as for training, as I don't have more)
+  * Use ```predict_monitoring_batch.py``` to create the monitoring dashboard
 
 ## Repository Structure
 
 **```data-exploration.ipynb```:** Notebook containing data exploration
 
-**Note:** The individual steps of the project are stored in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This is only done for the project to see how my working steps were and not necessary.
+**Notes:**
+* I kept the scripts of the individual steps of the project in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This means there is quite some resundacy in the repo, but I did this to be able to follow along my working steps. This is not necessary for the final product.
+* I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
 
 **```prefect-deploy-py```:** Data preparation, Model training and Deployment:
 * Model used: XGBoost for Regression
 * Environment:
-	* The needed packages are saved in project-env.yml and can be converted into a conda environment using ```conda env create --name project-env --file=project-env.yml```
-	* Activate the environment with ```conda activate project-env```
+	* The needed packages are saved in Pipfile
+	* Run ```pipenv install --dev```
+	* The environment can be started with ```pipenv shell```
 * Start the Server
 	* Start server for tracking and model registry ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts```
 * Training
@@ -83,8 +100,8 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* To start a prefect flow (without deployment) use the script ```prefect_flow.py``` it is equivalent to ```exp_tracking.py```, but including a prefect flow and tasks
 	* A deployment is used to run the script every 5 minutes. prefect deployment create prefect-deploy.py
 	* To run the prefect deployment use ```prefect deployment create prefect_deploy.py```
-	* Note: to create the deployment, I had to change the code slightly, as the argparse is not working (and also not useful), when the flow is scheduled.
-	* Create a work queue in the UI, as shown in video 3.5 of the course
+	* Note: to create the deployment, I had to change the code slightly, compared to ```exp-tracking.py``` and ```prefect_flow.py``` as the argparse is not working (and also not useful), when the flow is scheduled.
+	* Create a work queue in the UI (navigate to localhost:4200), as shown in video 3.5 of the course
 	* Spin up an agend ```prefect agent start <workqueue-id>```, e.g. ```prefect agent start a4bdb288-7329-4a1c-992f-fe62cd898af9```
 
 **```predict.py```:** Deploy model as a web service
@@ -106,7 +123,7 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* Start the service with ```docker-compose up --build```
 	* Data can be send to the service using ```python3 send-data.py```
 	* The data written in mongoDB can be checked using the notebook ```pymongo_example.ipynb```
-	* Use ```predict_monitoring_batch.py``` to create the monitoring dashboard
+	* Use ```predict_monitoring_batch.py``` to create the monitoring dashboard. It collects the predictions from the mongoDB and reads the true data to create a dashboard.
 
 **```training_tests.py```** Training script re-structured to make unit tests
 * I realized that the way the training is structured, it is hard to make unit tests, becuase the functions work on the entire training and validation data (e.g. the fuction ```normalize``` normalizes the numerical features by first fitting the scaler to the training data). However, I wanted to work a bit with unit tests and try how it works.Therefore I restructured the script a bit and included functions that are easy to unit test. This is only done for exercise purpose in this project., I don't think this would be a good way to structure the code. I deleted the prefect part in this script to keep it more simple.
@@ -118,14 +135,13 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
 	* First make it executable: ```chmode +x run.sh```
 	* The run it ```./run.sh```
 
-**Note:** I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
-
 **Code Quality**
 * I used linting for the code quality. All scripts, except the scripts for testing were linted.
 * ```black``` was used to improve the formatting: ```black .```
 * ```isort``` was used to organize the imports: ```isort .```
 * In ```pyproject.toml``` exceptions are defined.
 * git pre-commit hooks are defined in ```.pre-commit-config.yaml```. (Note: I didn't include the unit tests, because they are only included here for learning purpose and not relevant to the relevant project files)
+* Note: to pretend this to be an independent git repository run ```git init``` (then the pre-commit hooks can be tested)
 
 **Makefile**
 * a makefile is added to easily perform different steps
@@ -134,8 +150,9 @@ A. Tsanas, 'Accurate telemonitoring of Parkinsonâs disease symptom severity usi
     * ```make integration-test``` performs integration test
     * ```make quality_checks``` checks code quality using ```isort```, ```black```, and ```pylint```
     * ```make build``` builds docker image
-    * ```make publish``` (pretends to) publish to ECR (this is not really publishing) 	 
+    * ```make publish``` (pretends to) publish to ECR (this is not really publishing)
 
 **Future Work:**
+* Build a website to send data to the service
 * Deploy on the cloud
 * Make the RUN_ID a variable you can access from the outside, not having to change it manually in the script

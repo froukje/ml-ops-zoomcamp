@@ -8,7 +8,7 @@ import pandas as pd
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 
-RUN_ID = 'b03839b56eb74863ba7df86677772c25'
+RUN_ID = '48805560ea7e451c9ac07ae03215589c'
 logged_model = f'./mlruns/1/{RUN_ID}/artifacts/models'
 
 MONGODB_ADDRESS = os.getenv('MONGODB_ADDRESS', 'mongodb://127.0.0.1.27017')

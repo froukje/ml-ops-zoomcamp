@@ -51,3 +51,4 @@ models/*
 07-project/output/
 07-project/.ipynb_checkpoints/*
 07-project/'$(pwd)'
+07-project/prefect/*

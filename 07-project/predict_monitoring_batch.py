@@ -13,8 +13,9 @@ from evidently.model_profile.sections import (
     DataDriftProfileSection,
     RegressionPerformanceProfileSection,
 )
-from prefect import flow, task
 from pymongo import MongoClient
+
+from prefect import flow, task
 
 
 @task
@@ -31,7 +32,7 @@ def upload_target(filename):
 @task
 def load_reference_data(filename):
     '''make predictions from reference data'''
-    RUN_ID = 'dd45baed06ef478e9646e1010a0b80f8'
+    RUN_ID = '48805560ea7e451c9ac07ae03215589c'
     logged_model = f'./mlruns/1/{RUN_ID}/artifacts/models'
 
     model = mlflow.pyfunc.load_model(logged_model)

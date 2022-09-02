@@ -15,7 +15,6 @@ import pandas as pd
 import xgboost as xgb
 from mlflow.tracking import MlflowClient
 from optuna.samplers import TPESampler
-from prefect import flow, task
 from prefect.deployments import DeploymentSpec
 from prefect.flow_runners import SubprocessFlowRunner
 from prefect.orion.schemas.schedules import IntervalSchedule
@@ -24,6 +23,8 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+
+from prefect import flow, task
 
 
 @task
@@ -38,6 +39,7 @@ def read_data(args):
 def onehot(data_train, data_val, categorical):
     '''one hot encoding of categorical features'''
     # pylint: disable=duplicate-code
+    # pylint: disable=invalid-name
 
     # change data type from integer to string for categorical features
     data_train[categorical] = data_train[categorical].astype("string")
@@ -56,6 +58,7 @@ def onehot(data_train, data_val, categorical):
 def normalize(data_train, data_val, numerical):
     '''normalize numerical features'''
     # pylint: disable=duplicate-code
+    # pylint: disable=invalid-name
     scaler = StandardScaler()
     X_train_num = scaler.fit_transform(data_train[numerical])
     X_val_num = scaler.transform(data_val[numerical])
@@ -66,6 +69,8 @@ def normalize(data_train, data_val, numerical):
 def training(X_train, X_val, y_train, y_val, dv, scaler, args):
     '''training the model with hyperparameter tuning'''
     # pylint: disable=duplicate-code
+    # pylint: disable=invalid-name
+    # pylint: disable=too-many-locals
     def objective(trial):
         # pylint: disable=duplicate-code
         mlflow.set_experiment("xgb-hyper")
@@ -127,17 +132,18 @@ def main(input_data='data/ENB2012_data.csv', output='output'):
     """main function to train the model"""
     # pylint: disable=no-member
     # pylint: disable=duplicate-code
+    # pylint: disable=invalid-name
     args_dict = {}
     args_dict["input_data"] = input_data
     args_dict["output"] = output
-    args_dict["n_estimduplicate-codeators"] = [500, 1000]
+    args_dict["n_estimators"] = [500, 1000]
     args_dict["max_depth"] = [5, 10, 100, None]
     args_dict["min_samples_leaf"] = [1, 10, 50]
     args_dict["eta"] = [0.1, 0.5]
     args_dict["gamma"] = [0, 1]
     args_dict["alpha"] = [0, 1]
     args_dict["min_child_weight"] = [1, 10, 50]
-    args_dict["n_trials"] = 200
+    args_dict["n_trials"] = 20
 
     args = namedtuple("ObjectName", args_dict.keys())(*args_dict.values())
     # mlflow.set_tracking_uri("http://127.0.0.1:5000")
