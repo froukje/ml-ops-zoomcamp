@@ -207,7 +207,7 @@ if __name__ == '__main__':
     parser.add_argument('--alpha', type=float, nargs='+', default=[0, 1])  # default=0
     parser.add_argument('--min-child_weight', type=int, nargs='+', default=[1, 10, 50])
     # nr of trials for hyperparameter tuning
-    parser.add_argument('--n-trials', type=int, default='200')
+    parser.add_argument('--n-trials', type=int, default='20')
     args = parser.parse_args()
 
     # None is added to max-depth (cannot be done directly -> type error)

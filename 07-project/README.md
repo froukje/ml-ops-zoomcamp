@@ -79,13 +79,16 @@ The following steps describe how to run the project. More detailed explanations 
 	* The needed packages are saved in Pipfile
 	* Run ```pipenv install --dev```
 	* The environment can be started with ```pipenv shell```
+	* Alternative: If you prefer conda, you can use ```project-env.yml``` to create a conda environment (this is only for training, for the later applocation of docker, the pipenv will be used)
+		* Create a conda environment ```conda env create -n <env-name> -f project-env.yml```
+		* Activate the environment: ```conda activate <env-name>```
 * Start the Server
 	* Start server for tracking and model registry ```mlflow server --backend-store-uri sqlite:///mlruns.db  --default-artifact-root artifacts```
 * Training
 	* To run only training with experiment tracking and model registry use ```exp_tracking.py``` and run it with: ```python3 exp_tracking.py --input-data <path/to/input-data.csv> --output <path/to/output>``` (and optional other parameters)
 * Hyperparameter tuning
 	* Hyperparameter tuning is done via Optuna
-	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 200, e.g. ```python3 exp_tracking.py --n-trials 50```, to change it for the final ```prefect_deploy.py``` file, you need to change it directly in the script.
+	* Number of trials for hyperparameter tuning can be changed using the parameter ```n-trials```, default value is set to 20, e.g. ```python3 exp_tracking.py --n-trials 50```, to change it for the final ```prefect_deploy.py``` file, you need to change it directly in the script.
 	* Model parameters for hyperparameter tuning can also be change via the command line, e.g. ```n-estimators```, ```max-depth```, ```gamma```, ```eta```, etc. for ```exp-tracking.py```. For the final script, they need to be changed in the script.
 * Mlflow experiment tracking and model registry (Following videos from week 2)
 	* mlflow tracking server: sqlite database

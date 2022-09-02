@@ -12,12 +12,13 @@ import pandas as pd
 import xgboost as xgb
 from mlflow.tracking import MlflowClient
 from optuna.samplers import TPESampler
-from prefect import flow, task
 from prefect.task_runners import SequentialTaskRunner
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+
+from prefect import flow, task
 
 
 @task
@@ -223,7 +224,7 @@ if __name__ == '__main__':
     parser.add_argument('--alpha', type=float, nargs='+', default=[0, 1])  # default=0
     parser.add_argument('--min-child_weight', type=int, nargs='+', default=[1, 10, 50])
     # nr of trials for hyperparameter tuning
-    parser.add_argument('--n-trials', type=int, default='200')
+    parser.add_argument('--n-trials', type=int, default='20')
     args = parser.parse_args()
 
     # None is added to max-depth (cannot be done directly -> type error)
