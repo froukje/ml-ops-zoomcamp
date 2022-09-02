@@ -70,7 +70,7 @@ The following steps describe how to run the project. More detailed explanations 
 **```data-exploration.ipynb```:** Notebook containing data exploration
 
 **Notes:**
-* I kept the scripts of the individual steps of the project in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This means there is quite some resundacy in the repo, but I did this to be able to follow along my working steps. This is not necessary for the final product.
+* I kept the scripts of the individual steps of the project in individual files, to be able to run the tasks individually (e.g. do only  model training without orchestration). This means there is quite some redundancy in the repo, but I did this to be able to follow along my working steps. This is not necessary for the final product.
 * I notice the model is not working very well, however I did not spend very much time on creating a model. Propably also the data is not the best. I rather decided to focus on understanding the workflow as the time for this project was limited.
 
 **```prefect-deploy-py```:** Data preparation, Model training and Deployment:
@@ -129,7 +129,7 @@ The following steps describe how to run the project. More detailed explanations 
 	* Use ```predict_monitoring_batch.py``` to create the monitoring dashboard. It collects the predictions from the mongoDB and reads the true data to create a dashboard.
 
 **```training_tests.py```** Training script re-structured to make unit tests
-* I realized that the way the training is structured, it is hard to make unit tests, becuase the functions work on the entire training and validation data (e.g. the fuction ```normalize``` normalizes the numerical features by first fitting the scaler to the training data). However, I wanted to work a bit with unit tests and try how it works.Therefore I restructured the script a bit and included functions that are easy to unit test. This is only done for exercise purpose in this project., I don't think this would be a good way to structure the code. I deleted the prefect part in this script to keep it more simple.
+* I realized that the way the training is structured, it is hard to make unit tests, because the functions work on the entire training and validation data (e.g. the fuction ```normalize``` normalizes the numerical features by first fitting the scaler to the training data). However, I wanted to work a bit with unit tests and try how it works.Therefore I restructured the script a bit and included functions that are easy to unit test. This is only done for exercise purpose in this project. I don't think this would be a good way to structure the code. I deleted the prefect part in this script to keep it more simple.
 * The tests can be run with the conda environment ```conda run -n <env-name> pytest tests/unit_tests.py``` or with the pipenv ```pipenv run pytest tests/unit_tests.py```. Both from folder ```07-project```.
 
 **integration-test** (Following video 6.2)
